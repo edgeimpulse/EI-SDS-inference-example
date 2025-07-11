@@ -43,6 +43,7 @@ extern "C"
 #include <stdint.h>
 
 extern int ei_main(void);
+extern void ei_init(void);
 
 #ifdef  __cplusplus
 }

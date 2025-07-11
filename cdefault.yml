@@ -28,8 +28,14 @@ default:
         - -ffunction-sections
         - -fdata-sections
         - -gdwarf-4
+        - -flax-vector-conversions
       C:
         - -std=gnu11
+      CPP:
+        - -fno-exceptions
+        - -fno-rtti
+        - -std=c++11
+        - -fno-unwind-tables
       Link:
 #       - --specs=nano.specs
         - --specs=nosys.specs

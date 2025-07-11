@@ -33,7 +33,7 @@
  */
 
 #include <string.h>
-#include <ei_main.h>
+#include "ei_main.h"
 
 #include "ei_run_classifier.h"
 #include "edge-impulse-sdk/porting/ei_classifier_porting.h"
@@ -61,13 +61,13 @@ int raw_feature_get_data(size_t offset, size_t length, float *out_ptr)
       memset((void *)out_ptr, 0, (length * sizeof(float)));
     }
 
-    if (sdsPlayEndOfStream(playIdModelInput) != 0) {
-      // No more playback data available
-
-      // Stop Playback/Recording
-      playRecActive = 0U;
-      playRecStop   = 1U;
-    }
+    //if (sdsPlayEndOfStream(playIdModelInput) != 0) {
+    //  // No more playback data available
+//
+    //  // Stop Playback/Recording
+    //  playRecActive = 0U;
+    //  playRecStop   = 1U;
+    //}
 #else
     // collect real data
 
@@ -101,11 +101,6 @@ extern "C" int ei_main(void)
 
             display_results(&ei_default_impulse, &result);
 
-            // Output, for example:
-            // idle: 0.996094
-            // snake: 0.000000
-            // updown: 0.000000
-            // wave: 0.000000
 
             // If playback/recording is active then record model output data
             // Prepare model output data for recording
@@ -128,7 +123,7 @@ extern "C" int ei_main(void)
     return 0;
 }
 
-void ei_init(void)
+extern "C" void ei_init(void)
 {
     ei_printf("Edge Impulse inferencing\n");
 

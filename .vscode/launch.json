@@ -6,7 +6,7 @@
             "type": "gdbtarget",
             "request": "launch",
             "cwd": "${workspaceFolder}/",
-            "program": "out/DataTest/AE722F80F55D5LS/DebugRec/DataTest.elf",
+            "program": "out/EdgeImpulse/AE722F80F55D5LS/DebugPlay/EdgeImpulse.elf",
             "gdb": "arm-none-eabi-gdb",
             "preLaunchTask": "CMSIS Load",
             "initCommands": [
@@ -37,7 +37,7 @@
             "type": "gdbtarget",
             "request": "attach",
             "cwd": "${workspaceFolder}/",
-            "program": "out/DataTest/AE722F80F55D5LS/DebugRec/DataTest.elf",
+            "program": "out/EdgeImpulse/AE722F80F55D5LS/DebugPlay/EdgeImpulse.elf",
             "gdb": "arm-none-eabi-gdb",
             "initCommands": [
                 ""

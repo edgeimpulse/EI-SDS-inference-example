@@ -33,7 +33,7 @@
  */
 
 #include "cmsis_os2.h"
-#include "sds_control.h"
+#include "play_rec_management.h"
 
 #include "ei_main.h"
 
@@ -65,7 +65,7 @@ __NO_RETURN void threadMLInference (void *argument) {
 int32_t app_main (void) {
   osKernelInitialize();
   osThreadNew(threadMLInference,       NULL, &attr_MLInferenceThread);
-  osThreadNew(sdsControlThread, NULL, &attr_sdsControlThread);
+  osThreadNew(threadPlayRecManagement, NULL, &attr_sdsControlThread);
   osKernelStart();
   return 0;
 }
