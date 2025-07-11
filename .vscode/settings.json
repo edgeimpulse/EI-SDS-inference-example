@@ -1,0 +1,6 @@
+{
+    "clangd.arguments": [
+        "--compile-commands-dir=/Users/francescovarani/work/edge_impulse/arm/SDS/Alif-SDS-inference/out/EdgeImpulse/AE722F80F55D5LS/DebugRec"
+    ],
+    "debug.hideSlowPreLaunchWarning": true
+}

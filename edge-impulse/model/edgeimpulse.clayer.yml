@@ -1,0 +1,11 @@
+layer:
+  type: Edge Impulse layer
+  description: Edge Impulse SDK and model
+
+  packs:
+    - pack: EdgeImpulse::EI-SDK@1.72.19
+    - pack: EdgeImpulse::FOMO_face@121.0.0
+
+  components:
+    - component: EdgeImpulse::EdgeImpulse:SDK@1.72.19
+    - component: EdgeImpulse:model:FOMO_face@121.0.0
