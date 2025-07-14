@@ -2,48 +2,56 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "M55_HP CMSIS_DAP@pyOCD (launch)",
+            "name": "M55_HP JLink (launch)",
             "type": "gdbtarget",
             "request": "launch",
             "cwd": "${workspaceFolder}/",
-            "program": "out/EdgeImpulse/AE722F80F55D5LS/DebugPlay/EdgeImpulse.elf",
+            "program": "out/EdgeImpulse/AE722F80F55D5LS/DebugRec/EdgeImpulse.elf",
             "gdb": "arm-none-eabi-gdb",
             "preLaunchTask": "CMSIS Load",
             "initCommands": [
-                "monitor reset halt",
+                "monitor reset",
                 "tbreak main"
             ],
             "customResetCommands": [
-                "monitor reset halt"
+                "monitor reset"
             ],
             "target": {
-                "server": "pyocd",
+                "server": "JLinkGDBServerCL",
                 "serverParameters": [
-                    "--probe",
-                    "cmsisdap:",
-                    "--connect",
-                    "attach",
-                    "--persist"
+                    "-device",
+                    "AE722F80F55D5LS_M55_HP",
+                    "-endian",
+                    "little",
+                    "-if",
+                    "SWD",
+                    "-speed",
+                    "auto",
+                    "-noir",
+                    "-vd",
+                    "-nogui",
+                    "-localhostonly",
+                    "-port",
+                    "3333"
                 ],
                 "port": "3333"
             },
             "cmsis": {
-                "cbuildRunFile": "${command:cmsis-csolution.getCbuildRunFile}",
                 "updateConfiguration": "auto"
             }
         },
         {
-            "name": "M55_HP CMSIS_DAP@pyOCD (attach)",
+            "name": "M55_HP JLink (attach)",
             "type": "gdbtarget",
             "request": "attach",
             "cwd": "${workspaceFolder}/",
-            "program": "out/EdgeImpulse/AE722F80F55D5LS/DebugPlay/EdgeImpulse.elf",
+            "program": "out/EdgeImpulse/AE722F80F55D5LS/DebugRec/EdgeImpulse.elf",
             "gdb": "arm-none-eabi-gdb",
             "initCommands": [
                 ""
             ],
             "customResetCommands": [
-                "monitor reset halt"
+                "monitor reset"
             ],
             "target": {
                 "port": "3333"
@@ -53,9 +61,9 @@
             }
         },
         {
-            "name": "M55_HE CMSIS_DAP@pyOCD (attach)",
+            "name": "M55_HE JLink (launch)",
             "type": "gdbtarget",
-            "request": "attach",
+            "request": "launch",
             "cwd": "${workspaceFolder}/",
             "program": "",
             "gdb": "arm-none-eabi-gdb",
@@ -63,6 +71,23 @@
                 ""
             ],
             "target": {
+                "server": "JLinkGDBServerCL",
+                "serverParameters": [
+                    "-device",
+                    "AE722F80F55D5LS_M55_HE",
+                    "-endian",
+                    "little",
+                    "-if",
+                    "SWD",
+                    "-speed",
+                    "auto",
+                    "-noir",
+                    "-vd",
+                    "-nogui",
+                    "-localhostonly",
+                    "-port",
+                    "3334"
+                ],
                 "port": "3334"
             },
             "cmsis": {

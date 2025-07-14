@@ -4,44 +4,146 @@
         {
             "label": "CMSIS Erase",
             "type": "shell",
-            "command": "pyocd",
-            "args": [
-                "erase",
-                "--probe",
-                "cmsisdap:",
-                "--chip",
-                "--cbuild-run",
-                "${command:cmsis-csolution.getCbuildRunFile}"
+            "command": [
+                "echo Connect > .cmd.jlink &&",
+                "echo Erase >> .cmd.jlink &&",
+                "echo Exit >> .cmd.jlink &&",
+                "JLinkExe -device AE722F80F55D5LS_M55_HP -if SWD -speed auto -commandfile .cmd.jlink"
             ],
+            "options": {
+                "cwd": "${workspaceFolder}/"
+            },
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            },
+            "linux": {
+                "options": {
+                    "shell": {
+                        "executable": "/bin/bash",
+                        "args": [
+                            "-c"
+                        ]
+                    }
+                }
+            },
+            "osx": {
+                "options": {
+                    "shell": {
+                        "executable": "/bin/bash",
+                        "args": [
+                            "-c"
+                        ]
+                    }
+                }
+            },
             "problemMatcher": []
         },
         {
             "label": "CMSIS Load",
             "type": "shell",
-            "command": "pyocd",
-            "args": [
-                "load",
-                "--probe",
-                "cmsisdap:",
-                "--cbuild-run",
-                "${command:cmsis-csolution.getCbuildRunFile}"
+            "command": [
+                "echo Connect > .cmd.jlink &&",
+                "echo LoadFile \"out/EdgeImpulse/AE722F80F55D5LS/DebugRec/EdgeImpulse.elf\" >> .cmd.jlink &&",
+                "echo Exit >> .cmd.jlink &&",
+                "JLinkExe -device AE722F80F55D5LS_M55_HP -if SWD -speed auto -commandfile .cmd.jlink"
             ],
+            "options": {
+                "cwd": "${workspaceFolder}/"
+            },
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            },
+            "linux": {
+                "options": {
+                    "shell": {
+                        "executable": "/bin/bash",
+                        "args": [
+                            "-c"
+                        ]
+                    }
+                }
+            },
+            "osx": {
+                "options": {
+                    "shell": {
+                        "executable": "/bin/bash",
+                        "args": [
+                            "-c"
+                        ]
+                    }
+                }
+            },
             "problemMatcher": []
         },
         {
             "label": "CMSIS Run",
             "type": "shell",
-            "command": "pyocd",
+            "command": "JLinkGDBServerCL",
+            "options": {
+                "cwd": "${workspaceFolder}/"
+            },
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": [
+                            "/d",
+                            "/c"
+                        ]
+                    }
+                }
+            },
+            "linux": {
+                "options": {
+                    "shell": {
+                        "executable": "/bin/bash",
+                        "args": [
+                            "-c"
+                        ]
+                    }
+                }
+            },
+            "osx": {
+                "options": {
+                    "shell": {
+                        "executable": "/bin/bash",
+                        "args": [
+                            "-c"
+                        ]
+                    }
+                }
+            },
             "args": [
-                "gdbserver",
-                "--probe",
-                "cmsisdap:",
-                "--connect",
-                "attach",
-                "--persist",
-                "--reset-run",
-                "--cbuild-run",
-                "${command:cmsis-csolution.getCbuildRunFile}"
+                "-device",
+                "AE722F80F55D5LS_M55_HP",
+                "-endian",
+                "little",
+                "-if",
+                "SWD",
+                "-speed",
+                "auto",
+                "-nohalt",
+                "-noir",
+                "-nogui",
+                "-localhostonly",
+                "-port",
+                "3333"
             ],
             "problemMatcher": []
         },

@@ -19,7 +19,11 @@ solution:
   packs:
     - pack: ARM::SDS # search SDS pack for layers
     - pack: AlifSemiconductor::Ensemble
-    - pack: ARM::CMSIS
+    #- pack: ARM::CMSIS      
+    - pack: ARM::CMSIS@6.0.0
+    - pack: ARM::CMSIS-RTX@^5.9.0
+    - pack: ARM::CMSIS-DSP@1.15.0
+    - pack: ARM::CMSIS-NN@4.1.0
 
   # List different hardware targets that are used to deploy the solution.
   target-types:
@@ -29,6 +33,14 @@ solution:
       variables:
         - Board-Layer: $SolutionDir()$/Board/DevKit-E7_M55_HP/Board_HP.clayer.yml
         - SDSIO-Layer: $SolutionDir()$/sdsio/network/sdsio_network.clayer.yml
+      target-set:
+        - set:
+          images:
+            - project-context: EdgeImpulse.DebugRec
+          debugger:
+            name: JLink Server
+            port: 3333
+            protocol: swd
 
     - type: AVH-SSE-300 # simulator target
       board: ARM::V2M-MPS3-SSE-300-FVP
