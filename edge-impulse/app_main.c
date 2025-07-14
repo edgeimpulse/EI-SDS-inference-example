@@ -36,14 +36,23 @@
 #include "play_rec_management.h"
 
 #include "ei_main.h"
+#include "peripheral/sensor.h"
 
 // sdsControlThread thread attributes
 osThreadAttr_t attr_sdsControlThread = {
-  .name = "sdsControl"
+  .name = "sdsControl",
+  .priority = osPriorityNormal,
 };
 
 osThreadAttr_t attr_MLInferenceThread = {
   .name = "mlInference",
+  .priority = osPriorityNormal,
+};
+
+
+osThreadAttr_t attr_sensorThread = {
+  .name = "mlInference",
+  .priority = osPriorityNormal,
 };
 
 /*-----------------------------------------------------------------------------
@@ -66,6 +75,7 @@ int32_t app_main (void) {
   osKernelInitialize();
   osThreadNew(threadMLInference,       NULL, &attr_MLInferenceThread);
   osThreadNew(threadPlayRecManagement, NULL, &attr_sdsControlThread);
+  osThreadNew(sensorThread, NULL, &attr_sensorThread);
   osKernelStart();
   return 0;
 }

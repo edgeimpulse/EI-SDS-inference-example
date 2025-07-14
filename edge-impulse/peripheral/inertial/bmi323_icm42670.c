@@ -24,6 +24,7 @@
 
 #include "Driver_I3C.h"
 #include "i2c_over_i3c.h"
+#include "sys_utils.h"
 
 /* Private variables ------------------------------------------------------- */
 bool i2c_bmi323_ok = false;

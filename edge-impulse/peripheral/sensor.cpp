@@ -1,6 +1,7 @@
 #include "sensor.h"
 #include "inertial/bmi323_icm42670.h"
 #include <string.h>
+#include "../ei_main.h"
 
 #define INERTIAL_AXIS_SAMPLED   6
 /* Constant defines -------------------------------------------------------- */
@@ -14,7 +15,12 @@
 static float imu_data[INERTIAL_AXIS_SAMPLED];
 static float imu_data_bmi323[INERTIAL_AXIS_SAMPLED];
 
+// Event flags
+osEventFlagsId_t sensor_event = NULL;
 
+/**
+ * @brief Initialize the inertial sensor
+ */
 bool ei_inertial_init(void)
 {
     int retval = bmi323_icm42670_init();
@@ -22,6 +28,9 @@ bool ei_inertial_init(void)
     return true;
 }
 
+/**
+ * 
+ */
 float *ei_fusion_inertial_read_data_icm42670(int n_samples)
 {
     xyz_accel_gyro_imu_s icm_data;
@@ -42,6 +51,9 @@ float *ei_fusion_inertial_read_data_icm42670(int n_samples)
     return imu_data;
 }
 
+/**
+ * 
+ */
 float* ei_fusion_inertial_read_data_bmi323(int n_samples)
 {
     xyz_accel_gyro_imu_s bmi_data;
@@ -60,4 +72,15 @@ float* ei_fusion_inertial_read_data_bmi323(int n_samples)
     }
 
     return imu_data_bmi323;
+}
+
+__NO_RETURN void sensorThread (void *argument)
+{
+
+    for(;;) {
+
+        samples_callback(imu_data, 3 * sizeof(float));
+        // Sleep for a while to avoid busy waiting
+        osDelay(100);
+    }
 }

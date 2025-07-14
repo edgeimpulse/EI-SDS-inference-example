@@ -51,6 +51,8 @@ extern void ei_start_impulse(void);
 extern void ei_stop_impulse(void);
 extern bool is_inference_running(void);
 
+extern bool samples_callback(const void *raw_sample, uint32_t raw_sample_size);
+
 #ifdef  __cplusplus
 }
 #endif

@@ -40,8 +40,9 @@
 #include "edge-impulse-sdk/classifier/ei_run_classifier.h"
 #include "model-parameters/model_variables.h"
 
-#include "sdsio.h"
+#include <sdsio.h>
 #include "play_rec_management.h"
+#include "peripheral/sensor.h"
 
 typedef enum {
     INFERENCE_STOPPED,
@@ -50,18 +51,58 @@ typedef enum {
     INFERENCE_DATA_READY
 } inference_state_t;
 
-static inference_state_t state = INFERENCE_STOPPED;
-
 // Timestamp of read of input data for inference
 static uint32_t timestamp;
 
 // Event flags
 osEventFlagsId_t inferencing_event = NULL;
 
-static void ei_run_inference(void);
+static inference_state_t state = INFERENCE_STOPPED;
 
+static uint16_t samples_per_inference;
+static float samples_circ_buff[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE];
+static int samples_wr_index = 0;
+
+static void ei_run_inference(void);
+extern sdsRecPlayId_t recIdDataInput;
 #define INFERENCING_EVENT_START_FLAG    (1U << 0)
 #define INFERENCING_EVENT_STOP_FLAG     (1U << 1)
+
+/**
+ * @brief Called for each single sample
+ */
+bool samples_callback(const void *raw_sample, uint32_t raw_sample_size)
+{
+    if(state != INFERENCE_SAMPLING) {
+        // stop collecting samples if we are not in SAMPLING state
+        return true;
+    }
+
+    float *sample = (float *)raw_sample;
+
+    for(int i = 0; i < (int)(raw_sample_size / sizeof(float)); i++) {
+        samples_circ_buff[samples_wr_index++] = sample[i];
+        if(samples_wr_index > EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE) {
+            /* start from beginning of the circular buffer */
+            samples_wr_index = 0;
+        }
+        if(samples_wr_index >= samples_per_inference) {
+            state = INFERENCE_DATA_READY;
+            ei_printf("Recording done\n");
+            return true;
+        }
+    }
+
+        // Timestamp of read of input data for inference
+    uint32_t rec_timestamp;
+    
+    // Record raw sample data
+    rec_timestamp = osKernelGetTickCount();
+    uint32_t num  = sdsRecWrite(recIdDataInput, rec_timestamp, raw_sample, raw_sample_size * sizeof(float));
+    SDS_ASSERT(num == (raw_sample_size * sizeof(float)));    
+
+    return false;
+}
 
 /**
  * @brief      Get raw features from the SDS player
@@ -87,8 +128,7 @@ int raw_feature_get_data(size_t offset, size_t length, float *out_ptr)
     }
 
 #else
-    // collect real data
-
+    //
 #endif
 
     return 0;
@@ -132,6 +172,7 @@ extern "C" int ei_main(void)
 
 extern "C" void ei_init(void)
 {
+    ei_inertial_init();
     inferencing_event = osEventFlagsNew(NULL);
     SDS_ASSERT(inferencing_event != NULL);
 
@@ -144,14 +185,7 @@ extern "C" void ei_init(void)
     ei_printf("\tRaw samples per frame: %d samples.\n", EI_CLASSIFIER_RAW_SAMPLES_PER_FRAME);
     ei_printf("\tNumber of output classes: %d\n", sizeof(ei_classifier_inferencing_categories) / sizeof(ei_classifier_inferencing_categories[0]));
 
-    // init sensor
-#if SDS_PLAY && (SDS_PLAY == 1)
     //
-#else
-    //
-#endif
-
-    run_classifier_init();
 }
 
 /**
@@ -159,6 +193,8 @@ extern "C" void ei_init(void)
  */
 extern "C" void ei_start_impulse(void)
 {
+    run_classifier_init();
+    samples_per_inference = EI_CLASSIFIER_RAW_SAMPLE_COUNT * EI_CLASSIFIER_RAW_SAMPLES_PER_FRAME;
     osEventFlagsSet(inferencing_event, INFERENCING_EVENT_START_FLAG);
 }
 
@@ -184,7 +220,6 @@ extern "C" bool is_inference_running(void)
 }
 
 
-
 /**
  * @brief      Run the inference
  */
@@ -193,8 +228,20 @@ static void ei_run_inference(void)
     ei_impulse_result_t result = {nullptr};
 
     signal_t features_signal;
+#if SDS_PLAY && (SDS_PLAY == 1)
     features_signal.total_length = EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE;
+
     features_signal.get_data = &raw_feature_get_data;
+#else
+    // shift circular buffer, so the newest data will be the first
+    // if samples_wr_index is 0, then roll is immediately returning
+    numpy::roll(samples_circ_buff, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, (-samples_wr_index));
+    /* reset wr index, the oldest data will be overwritten */
+    samples_wr_index = 0;
+
+    // Create a data structure to represent this window of data
+    int err = numpy::signal_from_buffer(samples_circ_buff, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, &signal);
+#endif
 
     // invoke the impulse
     EI_IMPULSE_ERROR res = run_classifier(&features_signal, &result, false);

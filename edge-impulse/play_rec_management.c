@@ -49,7 +49,7 @@ volatile uint8_t sdsStreamingState = SDS_STREAMING_INACTIVE;
 #ifdef SDS_PLAY
 sdsRecPlayId_t playIdDataInput = NULL;
 #else
-static sdsRecPlayId_t recIdDataInput  = NULL;
+sdsRecPlayId_t recIdDataInput  = NULL;
 #endif
 static sdsRecPlayId_t recIdDataOutput = NULL;
 
