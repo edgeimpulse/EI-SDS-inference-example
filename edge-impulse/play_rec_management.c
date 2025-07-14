@@ -46,15 +46,15 @@ sdsError_t       sdsError = { 0U, 0U, NULL, 0U };
 volatile uint8_t sdsStreamingState = SDS_STREAMING_INACTIVE;
 
 // SDS stream identifiers
-#ifdef SDS_PLAY
-sdsRecPlayId_t playIdDataInput = NULL;
+#if (defined SDS_PLAY) && (SDS_PLAY == 1)
+sdsRecPlayId_t playIdModelInput = NULL;
 #else
 sdsRecPlayId_t recIdDataInput  = NULL;
 #endif
-static sdsRecPlayId_t recIdDataOutput = NULL;
+sdsRecPlayId_t recIdModelOutput = NULL;
 
 // SDS Player/Recorder buffers
-#ifdef SDS_PLAY
+#if (defined SDS_PLAY) && (SDS_PLAY == 1)
 static uint8_t   sds_play_buf_model_in[PLAY_BUF_SIZE_MODEL_IN];
 #else
 static uint8_t   sds_rec_buf_model_in[PLAY_BUF_SIZE_MODEL_IN];
@@ -171,7 +171,7 @@ static int32_t OpenStreams (void)
 {
     int32_t status = 0;
 
-#if SDS_PLAY && (SDS_PLAY == 1)
+#if (defined SDS_PLAY) && (SDS_PLAY == 1)
     // Start playback of previously recorded Model Input data
     playIdModelInput = sdsPlayOpen("ModelInput",
                                     sds_play_buf_model_in,
@@ -182,7 +182,7 @@ static int32_t OpenStreams (void)
     recIdDataInput = sdsPlayOpen("ModelInput",
                                     sds_rec_buf_model_in,
                                     sizeof(sds_rec_buf_model_in));
-    SDS_ASSERT(playIdModelInput != NULL);
+    SDS_ASSERT(recIdDataInput != NULL);
 #endif
 
     // Start recording of Model Output data
@@ -201,7 +201,7 @@ static int32_t CloseStreams (void)
 {
     int32_t status = 0;
 
-#if SDS_PLAY && (SDS_PLAY == 1)
+#if (defined SDS_PLAY) && (SDS_PLAY == 1)
     // Close stream for playback of input data
     status = sdsPlayClose(playIdModelInput);
     SDS_ASSERT(status == SDS_REC_PLAY_OK);

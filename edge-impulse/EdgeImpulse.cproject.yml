@@ -1,13 +1,6 @@
 project:
   description: Edge Impulse example project for SDS inference
 
-  packs:
-    - pack: ARM::CMSIS@^6.1.0
-    - pack: ARM::CMSIS-RTX@^5.9.0
-    - pack: ARM::CMSIS-DSP@1.15.0
-    - pack: ARM::CMSIS-NN@4.1.0      
-    - pack: Arm::ethos-u-core-driver@1.24.11
-
   connections:
     - connect: SDS inference demo
       provides:
@@ -23,6 +16,22 @@ project:
   define:
     - OS_IDLE_THREAD_NAME: \"Idle\"
     - OS_TIMER_THREAD_NAME: \"Timer\"
+    - ETHOSU55
+    - EI_ETHOS
+    - EI_ALIF_ADDR_TRANSLATION
+    - ARM_NPU
+    - ETHOS_U_NPU_ID: 55
+    - ETHOS_U_NPU_MEMORY_MODE: Shared_Sram
+    - ETHOS_U_NPU_CONFIG_ID: H256
+    - NPU_QCONFIG: 1
+    - NPU_REGIONCFG_0: 1
+    - NPU_REGIONCFG_1: 0
+    - NPU_REGIONCFG_2: 1
+    - AXI_LIMIT0_MEM_TYPE: 3
+    - AXI_LIMIT1_MEM_TYPE: 3
+    - AXI_LIMIT2_MEM_TYPE: 3
+    - AXI_LIMIT3_MEM_TYPE: 3
+    - TF_LITE_STATIC_MEMORY
 
   groups:
     - group: Documentation
@@ -48,7 +57,7 @@ project:
     - component: CMSIS:RTOS2:Keil RTX5&Source
     - component: ARM::CMSIS:DSP
     - component: ARM::CMSIS:NN Lib
-    - component: Arm::Machine Learning:NPU Support:Ethos-U Driver&Generic U55
+    #- component: ARM::Machine Learning:NPU Support:Ethos-U Driver&Generic U55
 
   layers:
     - layer: $SDSIO-Layer$

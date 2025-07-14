@@ -109,7 +109,7 @@ bool samples_callback(const void *raw_sample, uint32_t raw_sample_size)
  */
 int raw_feature_get_data(size_t offset, size_t length, float *out_ptr)
 {
-#if SDS_PLAY && (SDS_PLAY == 1)
+#if (defined SDS_PLAY) && (SDS_PLAY == 1)
 
     // Playback previously recorded data from ModelInput.0.sds file
     uint32_t num = sdsPlayRead(playIdModelInput, &timestamp, (void *)out_ptr, (length * sizeof(float)));
@@ -228,7 +228,7 @@ static void ei_run_inference(void)
     ei_impulse_result_t result = {nullptr};
 
     signal_t features_signal;
-#if SDS_PLAY && (SDS_PLAY == 1)
+#if (defined SDS_PLAY) && (SDS_PLAY == 1)
     features_signal.total_length = EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE;
 
     features_signal.get_data = &raw_feature_get_data;
@@ -240,7 +240,7 @@ static void ei_run_inference(void)
     samples_wr_index = 0;
 
     // Create a data structure to represent this window of data
-    int err = numpy::signal_from_buffer(samples_circ_buff, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, &signal);
+    int err = numpy::signal_from_buffer(samples_circ_buff, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, &features_signal);
 #endif
 
     // invoke the impulse
