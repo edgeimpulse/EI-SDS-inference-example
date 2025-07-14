@@ -33,7 +33,11 @@ project:
       files:
         - file: ei_main.cpp
         - file: ei_classifier_porting.cpp
-
+    - group: perihperals
+      files:
+        - file: peripheral/sensor.cpp
+        - file: peripheral/inertial/bmi323_icm42670.c
+        - file: peripheral/inertial/i2c_over_i3c.c
     - group: Application
       files:
         - file: app_main.c
