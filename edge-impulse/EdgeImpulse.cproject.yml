@@ -57,6 +57,8 @@ project:
     - component: CMSIS:RTOS2:Keil RTX5&Source
     - component: ARM::CMSIS:DSP
     - component: ARM::CMSIS:NN Lib
+    - component: AlifSemiconductor::Device:SOC Peripherals:I2C_I3C
+    - component: AlifSemiconductor::Device:SOC Peripherals:I3C
     #- component: ARM::Machine Learning:NPU Support:Ethos-U Driver&Generic U55
 
   layers:

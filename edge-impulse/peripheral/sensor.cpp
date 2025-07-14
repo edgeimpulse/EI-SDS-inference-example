@@ -81,6 +81,6 @@ __NO_RETURN void sensorThread (void *argument)
 
         samples_callback(imu_data, 3 * sizeof(float));
         // Sleep for a while to avoid busy waiting
-        osDelay(100);
+        osDelay(10);    // fixed for now
     }
 }

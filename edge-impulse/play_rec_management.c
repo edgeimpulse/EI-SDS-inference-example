@@ -86,11 +86,11 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
     uint32_t no_load_cnt, prev_cnt;
     uint32_t interval_time, cnt = 0U;
 
-#ifdef RTE_SDS_IO_SOCKET
-    // Initialize socket interface
-    status = socket_startup();
-    SDS_ASSERT(status == 0);
-#endif
+//#ifdef RTE_SDS_IO_SOCKET
+//    // Initialize socket interface
+//    status = socket_startup();
+//    SDS_ASSERT(status == 0);
+//#endif
 
     // Initialize SDS recorder/player
     status = sdsRecPlayInit(recorder_event_callback);
@@ -108,6 +108,7 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
         switch (sdsStreamingState) {
             case SDS_STREAMING_INACTIVE:
             if (!keypress) break;
+                printf("SDS: Start streaming\n");
                 if (OpenStreams() == 0) {
                     // Turn LED1 on
                     vioSetSignal(vioLED1, vioLEDon);
@@ -117,12 +118,13 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
             break;
             case SDS_STREAMING_ACTIVE:
                 if (!keypress) break;
-
+                printf("SDS: Start streaming\n");
                 // Request to stop streaming
                 sdsStreamingState = SDS_STREAMING_STOP;
                 ei_stop_impulse();  // command to stop inference
             break;
             case SDS_STREAMING_STOP_SAFE:
+                printf("SDS: SDS_STREAMING_STOP_SAFE\n");
                 if (CloseStreams() == 0) {
                     // Turn LED1 off
                     vioSetSignal(vioLED1, vioLEDoff);

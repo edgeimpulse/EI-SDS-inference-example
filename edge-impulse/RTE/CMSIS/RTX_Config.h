@@ -215,7 +215,7 @@
 //   <i> Enables stack overrun check at thread switch (requires RTX source variant).
 //   <i> Enabling this option increases slightly the execution time of a thread switch.
 #ifndef OS_STACK_CHECK
-#define OS_STACK_CHECK              1
+#define OS_STACK_CHECK              0
 #endif
  
 //   <q>Stack usage watermark
@@ -230,7 +230,7 @@
 //     <1=> Privileged mode
 //   <i> Default: Unprivileged mode
 #ifndef OS_PRIVILEGE_MODE
-#define OS_PRIVILEGE_MODE           0
+#define OS_PRIVILEGE_MODE           1
 #endif
  
 // </h>

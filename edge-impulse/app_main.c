@@ -51,7 +51,7 @@ osThreadAttr_t attr_MLInferenceThread = {
 
 
 osThreadAttr_t attr_sensorThread = {
-  .name = "mlInference",
+  .name = "sensorThread",
   .priority = osPriorityNormal,
 };
 

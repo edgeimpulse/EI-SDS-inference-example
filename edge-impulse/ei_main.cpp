@@ -65,8 +65,10 @@ static int samples_wr_index = 0;
 
 static void ei_run_inference(void);
 extern sdsRecPlayId_t recIdDataInput;
+
 #define INFERENCING_EVENT_START_FLAG    (1U << 0)
 #define INFERENCING_EVENT_STOP_FLAG     (1U << 1)
+#define INFERENCING_SENSOR_FULL     (1U << 2)
 
 /**
  * @brief Called for each single sample
@@ -87,7 +89,10 @@ bool samples_callback(const void *raw_sample, uint32_t raw_sample_size)
             samples_wr_index = 0;
         }
         if(samples_wr_index >= samples_per_inference) {
+            
             state = INFERENCE_DATA_READY;
+            osEventFlagsSet(inferencing_event, INFERENCING_SENSOR_FULL);
+            ei_printf("Samples collected: %d\n", samples_wr_index);
             ei_printf("Recording done\n");
             return true;
         }
@@ -146,17 +151,25 @@ extern "C" int ei_main(void)
             case INFERENCE_STOPPED:
                 set_sdsClosed();
                 flags = osEventFlagsWait(inferencing_event, INFERENCING_EVENT_START_FLAG, osFlagsWaitAny, osWaitForever);
+                if ((flags & INFERENCING_EVENT_START_FLAG) != 0U) {
+                    ei_start_impulse();
+                    state = INFERENCE_WAITING;
+                    ei_printf("ei_main -> INFERENCE_WAITING\n");
+                }
                 // nothing to do
             break;
             case INFERENCE_WAITING:
-               
+                ei_printf("wait 1 sec");
+                osDelay(1000); // wait for 1 second before checking the event flags again
+               state = INFERENCE_SAMPLING;
+               ei_printf("ei_main -> INFERENCE_SAMPLING\n");
             break;
             case INFERENCE_SAMPLING:
-                    
+                flags = osEventFlagsWait(inferencing_event, INFERENCING_SENSOR_FULL, osFlagsWaitAny, osWaitForever);
             break;
             case INFERENCE_DATA_READY:
                 ei_run_inference();
-                state = INFERENCE_SAMPLING;
+                state = INFERENCE_WAITING;
             break;
                 default:
                     break;
@@ -193,6 +206,7 @@ extern "C" void ei_init(void)
  */
 extern "C" void ei_start_impulse(void)
 {
+    ei_printf("Start impulse");
     run_classifier_init();
     samples_per_inference = EI_CLASSIFIER_RAW_SAMPLE_COUNT * EI_CLASSIFIER_RAW_SAMPLES_PER_FRAME;
     osEventFlagsSet(inferencing_event, INFERENCING_EVENT_START_FLAG);
