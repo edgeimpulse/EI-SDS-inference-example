@@ -41,9 +41,15 @@ extern "C"
 #endif
 
 #include <stdint.h>
+#include "cmsis_os2.h"
+
+extern osEventFlagsId_t inferencing_event;
 
 extern int ei_main(void);
 extern void ei_init(void);
+extern void ei_start_impulse(void);
+extern void ei_stop_impulse(void);
+extern bool is_inference_running(void);
 
 #ifdef  __cplusplus
 }

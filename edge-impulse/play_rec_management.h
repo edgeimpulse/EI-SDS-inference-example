@@ -29,6 +29,12 @@ extern "C"
 
 #include "sds_rec_play.h"
 
+// SDS streaming states
+#define SDS_STREAMING_INACTIVE    0     // Streaming is not active
+#define SDS_STREAMING_ACTIVE      1     // Streaming is active, SDS streams are open and ready for read/write operations
+#define SDS_STREAMING_STOP        2     // Request to stop streaming and close the open streams
+#define SDS_STREAMING_STOP_SAFE   3     // Safe state for streaming to be stopped
+
 // Assert macro
 #ifndef NDEBUG
 // SDS error information structure
@@ -59,6 +65,8 @@ extern sdsRecPlayId_t   recIdModelOutput;
 
 // Player/Recorder management thread function
 extern void threadPlayRecManagement (void *argument);
+extern uint8_t get_sdsStreamingState(void);
+
 
 #ifdef  __cplusplus
 }

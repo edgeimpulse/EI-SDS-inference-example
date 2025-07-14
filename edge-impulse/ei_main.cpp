@@ -39,11 +39,29 @@
 #include "edge-impulse-sdk/porting/ei_classifier_porting.h"
 #include "edge-impulse-sdk/classifier/ei_run_classifier.h"
 #include "model-parameters/model_variables.h"
-#include "cmsis_os2.h"
+
+#include "sdsio.h"
 #include "play_rec_management.h"
+
+typedef enum {
+    INFERENCE_STOPPED,
+    INFERENCE_WAITING,
+    INFERENCE_SAMPLING,
+    INFERENCE_DATA_READY
+} inference_state_t;
+
+static inference_state_t state = INFERENCE_STOPPED;
 
 // Timestamp of read of input data for inference
 static uint32_t timestamp;
+
+// Event flags
+osEventFlagsId_t inferencing_event = NULL;
+
+static void ei_run_inference(void);
+
+#define INFERENCING_EVENT_START_FLAG    (1U << 0)
+#define INFERENCING_EVENT_STOP_FLAG     (1U << 1)
 
 /**
  * @brief      Get raw features from the SDS player
@@ -61,13 +79,13 @@ int raw_feature_get_data(size_t offset, size_t length, float *out_ptr)
       memset((void *)out_ptr, 0, (length * sizeof(float)));
     }
 
-    //if (sdsPlayEndOfStream(playIdModelInput) != 0) {
-    //  // No more playback data available
-//
-    //  // Stop Playback/Recording
-    //  playRecActive = 0U;
-    //  playRecStop   = 1U;
-    //}
+    if (num == SDSIO_EOS) {
+        // No more playback data available
+        // Stop Playback/Recording
+        //playRecActive = 0U;
+        //playRecStop   = 1U;
+    }
+
 #else
     // collect real data
 
@@ -77,43 +95,31 @@ int raw_feature_get_data(size_t offset, size_t length, float *out_ptr)
 }
 
 /**
- * @brief      Get the raw features from the sensor and run the classifier
+ * @brief      State machine for Edge Impulse inferencing
  */
 extern "C" int ei_main(void)
 {
-    ei_impulse_result_t result = {nullptr};
-
-    signal_t features_signal;
-    features_signal.total_length = EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE;
-    features_signal.get_data = &raw_feature_get_data;
-
+    uint32_t flags;
     while (1) {
 
-        if (playRecActive != 0U) {
-
-            // invoke the impulse
-            EI_IMPULSE_ERROR res = run_classifier(&features_signal, &result, false);
-
-            if (res != 0) {
-                ei_printf("ERR: Failed to run classifier\n");
-                return 1;
+        switch(state) {
+            case INFERENCE_STOPPED:
+                flags = osEventFlagsWait(inferencing_event, INFERENCING_EVENT_START_FLAG, osFlagsWaitAny, osWaitForever);
+                // nothing to do
+            break;
+            case INFERENCE_WAITING:
+               
+            break;
+            case INFERENCE_SAMPLING:
+                    
+            break;
+            case INFERENCE_DATA_READY:
+                ei_run_inference();
+                state = INFERENCE_SAMPLING;
+            break;
+                default:
+                    break;
             }
-
-            display_results(&ei_default_impulse, &result);
-
-
-            // If playback/recording is active then record model output data
-            // Prepare model output data for recording
-            float model_out_results[EI_CLASSIFIER_NN_OUTPUT_COUNT];
-
-            for (uint8_t i = 0U; i < EI_CLASSIFIER_NN_OUTPUT_COUNT; i++) {
-                model_out_results[i] = result.classification[i].value;
-            }
-
-            // Record model output data
-            uint32_t num = sdsRecWrite(recIdModelOutput, timestamp, model_out_results, EI_CLASSIFIER_NN_OUTPUT_COUNT * sizeof(float));
-            SDS_ASSERT(num == (EI_CLASSIFIER_NN_OUTPUT_COUNT * sizeof(float)));
-        }
 
         ei_sleep(2000);
     }
@@ -123,11 +129,15 @@ extern "C" int ei_main(void)
     return 0;
 }
 
+
+
 extern "C" void ei_init(void)
 {
+    inferencing_event = osEventFlagsNew(NULL);
+    SDS_ASSERT(inferencing_event != NULL);
+
     ei_printf("Edge Impulse inferencing\n");
 
-    // summary of inferencing settings (from model_metadata.h)
     ei_printf("Inferencing settings:\n");
     ei_printf("\tClassifier interval: %.2f ms.\n", (float)EI_CLASSIFIER_INTERVAL_MS);
     ei_printf("\tInput frame size: %d\n", EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE);
@@ -142,5 +152,90 @@ extern "C" void ei_init(void)
     //
 #endif
 
-    run_classifier_init();    
+    run_classifier_init();
+}
+
+/**
+ * @brief
+ */
+extern "C" void ei_start_impulse(void)
+{
+    osEventFlagsSet(inferencing_event, INFERENCING_EVENT_START_FLAG);
+}
+
+/**
+ * @brief
+ */
+extern "C" void ei_stop_impulse(void)
+{    
+    if(state != INFERENCE_STOPPED) {
+        state = INFERENCE_STOPPED;
+        ei_printf("Inferencing stopped by user\r\n");
+        
+        run_classifier_deinit();
+    }
+}
+
+/**
+ * @brief
+ */
+extern "C" bool is_inference_running(void)
+{
+    return (state != INFERENCE_STOPPED);
+}
+
+
+
+/**
+ * @brief      Run the inference
+ */
+static void ei_run_inference(void)
+{
+    ei_impulse_result_t result = {nullptr};
+
+    signal_t features_signal;
+    features_signal.total_length = EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE;
+    features_signal.get_data = &raw_feature_get_data;
+
+    // invoke the impulse
+    EI_IMPULSE_ERROR res = run_classifier(&features_signal, &result, false);
+
+    if (res != 0) {
+        ei_printf("ERR: Failed to run classifier\n");
+        return;
+    }
+
+    display_results(&ei_default_impulse, &result);
+
+    uint16_t num_element = 0;
+    float *model_out_results;
+
+#if (EI_CLASSIFIER_OBJECT_DETECTION == 1)
+    model_out_results = (float*)ei_malloc(result.bounding_boxes_count * sizeof(float));
+
+    bool bb_found = result.bounding_boxes[0].value > 0;
+    for (size_t ix = 0; ix < result.bounding_boxes_count; ix++) {
+        auto bb = result.bounding_boxes[ix];
+        if (bb.value == 0) {
+            continue;
+        }
+        model_out_results[num_element++] = bb.value;
+    }
+
+#elif (EI_CLASSIFIER_LABEL_COUNT == 1) && (!EI_CLASSIFIER_HAS_ANOMALY)
+
+#elif (EI_CLASSIFIER_LABEL_COUNT > 1)
+    num_element = EI_CLASSIFIER_LABEL_COUNT;
+    model_out_results = (float*)ei_malloc(num_element * sizeof(float));
+
+    for (uint16_t i = 0U; i < EI_CLASSIFIER_NN_OUTPUT_COUNT; i++) {
+        model_out_results[i] = result.classification[i].value;
+    }
+#endif
+
+    // Record model output data
+    uint32_t num = sdsRecWrite(recIdModelOutput, timestamp, model_out_results, num_element * sizeof(float));
+    SDS_ASSERT(num == (num_element * sizeof(float)));
+
+    ei_free(model_out_results);
 }

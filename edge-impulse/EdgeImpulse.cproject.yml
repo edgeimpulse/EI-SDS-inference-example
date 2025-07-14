@@ -28,6 +28,7 @@ project:
     - group: Documentation
       files:
         - file: ../README.md
+
     - group: Edge Impulse
       files:
         - file: ei_main.cpp
