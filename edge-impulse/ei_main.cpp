@@ -104,6 +104,7 @@ extern "C" int ei_main(void)
 
         switch(state) {
             case INFERENCE_STOPPED:
+                set_sdsClosed();
                 flags = osEventFlagsWait(inferencing_event, INFERENCING_EVENT_START_FLAG, osFlagsWaitAny, osWaitForever);
                 // nothing to do
             break;
@@ -128,8 +129,6 @@ extern "C" int ei_main(void)
 
     return 0;
 }
-
-
 
 extern "C" void ei_init(void)
 {
@@ -172,7 +171,7 @@ extern "C" void ei_stop_impulse(void)
         state = INFERENCE_STOPPED;
         ei_printf("Inferencing stopped by user\r\n");
         
-        run_classifier_deinit();
+        run_classifier_deinit();    // ?
     }
 }
 

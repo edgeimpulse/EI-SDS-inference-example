@@ -66,7 +66,7 @@ extern sdsRecPlayId_t   recIdModelOutput;
 // Player/Recorder management thread function
 extern void threadPlayRecManagement (void *argument);
 extern uint8_t get_sdsStreamingState(void);
-
+extern void set_sdsClosed(void);
 
 #ifdef  __cplusplus
 }

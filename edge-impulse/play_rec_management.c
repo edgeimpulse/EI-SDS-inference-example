@@ -21,6 +21,7 @@
 #include "cmsis_os2.h"
 #include "cmsis_vio.h"
 #include "ei_main.h"
+#include <stdio.h>
 
 // Configuration
 
@@ -111,8 +112,8 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
                     // Turn LED1 on
                     vioSetSignal(vioLED1, vioLEDon);
                     sdsStreamingState = SDS_STREAMING_ACTIVE;
-                }
-                ei_start_impulse();  // command to start inference
+                    ei_start_impulse();  // command to start inference
+                }                
             break;
             case SDS_STREAMING_ACTIVE:
                 if (!keypress) break;
@@ -120,7 +121,6 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
                 // Request to stop streaming
                 sdsStreamingState = SDS_STREAMING_STOP;
                 ei_stop_impulse();  // command to stop inference
-            break;
             break;
             case SDS_STREAMING_STOP_SAFE:
                 if (CloseStreams() == 0) {
@@ -130,6 +130,7 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
                 }
             break;
             case SDS_STREAMING_STOP:
+                // wait till we receive SDS_STREAMING_STOP_SAFE
             break;
             default:
             break;
@@ -154,6 +155,13 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
 uint8_t get_sdsStreamingState(void)
 {
     return sdsStreamingState;
+}
+
+void set_sdsClosed(void)
+{
+    if (SDS_STREAMING_STOP == sdsStreamingState) {
+        sdsStreamingState = SDS_STREAMING_STOP_SAFE;
+    }
 }
 
 /**
