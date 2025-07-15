@@ -1,0 +1,17 @@
+sds:
+  name: Data Input
+  description: Generated accelerometer samples at 100 Hz
+  frequency: 100
+  content:
+  - value: x
+    type:  float
+    scale: 0.1
+    unit:  m/s^2
+  - value: y
+    type:  float
+    scale: 0.1
+    unit:  m/s^2
+  - value: z
+    type:  float
+    scale: 0.1
+    unit:  m/s^2

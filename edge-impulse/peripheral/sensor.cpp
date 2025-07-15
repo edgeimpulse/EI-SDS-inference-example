@@ -15,6 +15,9 @@
 static float imu_data[INERTIAL_AXIS_SAMPLED];
 static float imu_data_bmi323[INERTIAL_AXIS_SAMPLED];
 
+static void ei_fusion_inertial_read_data_icm42670(int n_samples);
+static void ei_fusion_inertial_read_data_bmi323(int n_samples);
+
 // Event flags
 osEventFlagsId_t sensor_event = NULL;
 
@@ -31,7 +34,7 @@ bool ei_inertial_init(void)
 /**
  * 
  */
-float *ei_fusion_inertial_read_data_icm42670(int n_samples)
+static void ei_fusion_inertial_read_data_icm42670(int n_samples)
 {
     xyz_accel_gyro_imu_s icm_data;
 
@@ -47,14 +50,12 @@ float *ei_fusion_inertial_read_data_icm42670(int n_samples)
         imu_data[4] = (float)icm_data.gyro_y * CONVERT_ADC_GYR;
         imu_data[5] = (float)icm_data.gyro_z * CONVERT_ADC_GYR;
     }
-
-    return imu_data;
 }
 
 /**
  * 
  */
-float* ei_fusion_inertial_read_data_bmi323(int n_samples)
+static void ei_fusion_inertial_read_data_bmi323(int n_samples)
 {
     xyz_accel_gyro_imu_s bmi_data;
 
@@ -70,14 +71,15 @@ float* ei_fusion_inertial_read_data_bmi323(int n_samples)
         imu_data_bmi323[4] = (float)bmi_data.gyro_y * CONVERT_ADC_GYR;
         imu_data_bmi323[5] = (float)bmi_data.gyro_z * CONVERT_ADC_GYR;
     }
-
-    return imu_data_bmi323;
 }
 
 __NO_RETURN void sensorThread (void *argument)
 {
+    ei_inertial_init();
 
     for(;;) {
+
+        ei_fusion_inertial_read_data_bmi323(3);
 
         samples_callback(imu_data, 3 * sizeof(float));
         // Sleep for a while to avoid busy waiting

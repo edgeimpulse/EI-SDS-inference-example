@@ -184,7 +184,6 @@ extern "C" int ei_main(void)
 
 extern "C" void ei_init(void)
 {
-    ei_inertial_init();
     inferencing_event = osEventFlagsNew(NULL);
     SDS_ASSERT(inferencing_event != NULL);
 

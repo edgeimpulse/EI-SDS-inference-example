@@ -4,8 +4,8 @@ layer:
 
   packs:
     - pack: EdgeImpulse::EI-SDK@1.72.19
-    - pack: EdgeImpulse::FOMO_face@121.0.0
+    - pack: EdgeImpulse::Tutorial_Continuous_motion_recog@198.0.0
 
   components:
     - component: EdgeImpulse::EdgeImpulse:SDK@1.72.19
-    - component: EdgeImpulse:model:FOMO_face@121.0.0
+    - component: EdgeImpulse:model:Tutorial_Continuous_motion_recog@198.0.0

@@ -1,0 +1,15 @@
+sds:
+  name: Model Output
+  description: Results of inference
+  frequency: 1
+  content:
+  - value: idle
+    type:  float
+  - value: snake
+    type:  float
+  - value: updown
+    type:  float
+  - value: wave
+    type:  float
+  - value: anomaly
+    type:  float

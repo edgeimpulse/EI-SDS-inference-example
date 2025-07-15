@@ -11,8 +11,6 @@ extern "C"
 
 extern void sensorThread (void *argument);
 extern bool ei_inertial_init(void);
-extern float *ei_fusion_inertial_read_data_icm42670(int n_samples);
-extern float* ei_fusion_inertial_read_data_bmi323(int n_samples);
 
 #ifdef  __cplusplus
 }
