@@ -22,7 +22,7 @@
 #include "cmsis_vio.h"
 #include "ei_main.h"
 #include <stdio.h>
-
+#include "sdsio_config_socket.h"
 // Configuration
 
 // SDS Player/Recorder data buffers size
@@ -92,10 +92,11 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
 //    SDS_ASSERT(status == 0);
 //#endif
 
+    printf("Tryint to connect to SDS server %s\n", SDSIO_SOCKET_SERVER_IP);
     // Initialize SDS recorder/player
     status = sdsRecPlayInit(recorder_event_callback);
     SDS_ASSERT(status == SDS_REC_PLAY_OK);
-
+    printf("Connected to %s\n", SDSIO_SOCKET_SERVER_IP);
 
     interval_time = osKernelGetTickCount();
 
@@ -118,7 +119,7 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
             break;
             case SDS_STREAMING_ACTIVE:
                 if (!keypress) break;
-                printf("SDS: Start streaming\n");
+                printf("SDS: Stop streaming\n");
                 // Request to stop streaming
                 sdsStreamingState = SDS_STREAMING_STOP;
                 ei_stop_impulse();  // command to stop inference
@@ -181,7 +182,7 @@ static int32_t OpenStreams (void)
     SDS_ASSERT(playIdModelInput != NULL);
 #else
     // Start playback of previously recorded Model Input data
-    recIdDataInput = sdsPlayOpen("ModelInput",
+    recIdDataInput = sdsRecOpen("ModelRec",
                                     sds_rec_buf_model_in,
                                     sizeof(sds_rec_buf_model_in));
     SDS_ASSERT(recIdDataInput != NULL);

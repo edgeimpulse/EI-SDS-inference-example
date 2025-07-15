@@ -94,7 +94,7 @@
         {
             "label": "CMSIS Run",
             "type": "shell",
-            "command": "JLinkGDBServerCL",
+            "command": "JLinkGDBServerCLExe",
             "options": {
                 "cwd": "${workspaceFolder}/"
             },

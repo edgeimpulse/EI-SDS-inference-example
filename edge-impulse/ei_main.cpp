@@ -103,8 +103,8 @@ bool samples_callback(const void *raw_sample, uint32_t raw_sample_size)
     
     // Record raw sample data
     rec_timestamp = osKernelGetTickCount();
-    uint32_t num  = sdsRecWrite(recIdDataInput, rec_timestamp, raw_sample, raw_sample_size * sizeof(float));
-    SDS_ASSERT(num == (raw_sample_size * sizeof(float)));    
+    uint32_t num  = sdsRecWrite(recIdDataInput, rec_timestamp, raw_sample, raw_sample_size);
+    SDS_ASSERT(num == (raw_sample_size));    
 
     return false;
 }
@@ -151,8 +151,7 @@ extern "C" int ei_main(void)
             case INFERENCE_STOPPED:
                 set_sdsClosed();
                 flags = osEventFlagsWait(inferencing_event, INFERENCING_EVENT_START_FLAG, osFlagsWaitAny, osWaitForever);
-                if ((flags & INFERENCING_EVENT_START_FLAG) != 0U) {
-                    ei_start_impulse();
+                if ((flags & INFERENCING_EVENT_START_FLAG) != 0U) {                    
                     state = INFERENCE_WAITING;
                     ei_printf("ei_main -> INFERENCE_WAITING\n");
                 }
@@ -165,7 +164,7 @@ extern "C" int ei_main(void)
                ei_printf("ei_main -> INFERENCE_SAMPLING\n");
             break;
             case INFERENCE_SAMPLING:
-                flags = osEventFlagsWait(inferencing_event, INFERENCING_SENSOR_FULL, osFlagsWaitAny, osWaitForever);
+                flags = osEventFlagsWait(inferencing_event, INFERENCING_SENSOR_FULL | INFERENCING_EVENT_STOP_FLAG, osFlagsWaitAny, osWaitForever);
             break;
             case INFERENCE_DATA_READY:
                 ei_run_inference();
@@ -220,6 +219,7 @@ extern "C" void ei_stop_impulse(void)
     if(state != INFERENCE_STOPPED) {
         state = INFERENCE_STOPPED;
         ei_printf("Inferencing stopped by user\r\n");
+        osEventFlagsSet(inferencing_event, INFERENCING_EVENT_STOP_FLAG);
         
         run_classifier_deinit();    // ?
     }
