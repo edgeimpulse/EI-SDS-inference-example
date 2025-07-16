@@ -36,7 +36,7 @@ solution:
       target-set:
         - set:
           images:
-            - project-context: EdgeImpulse.DebugRec
+            - project-context: EdgeImpulse.DebugPlay
           debugger:
             name: JLink Server
             port: 3333
@@ -48,8 +48,16 @@ solution:
       define:
         - SIMULATOR
       variables:
-        - Board-Layer: $SolutionDir()$/Board/Corstone-300/Board.clayer.yml
+        - Board-Layer: $SolutionDir()$/Board/Corstone-300/Board-U55.clayer.yml
         - SDSIO-Layer: $SolutionDir()$/sdsio/fvp/sdsio_fvp.clayer.yml
+      target-set:
+        - set:
+          images:
+            - project-context: EdgeImpulse.DebugPlay
+          debugger:
+            name: JLink Server
+            port: 3333
+            protocol: swd
 
   # List of different build configurations.
   build-types:

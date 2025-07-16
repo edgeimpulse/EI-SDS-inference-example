@@ -22,7 +22,9 @@
 #include "cmsis_vio.h"
 #include "ei_main.h"
 #include <stdio.h>
+#ifndef SIMULATOR
 #include "sdsio_config_socket.h"
+#endif
 // Configuration
 
 // SDS Player/Recorder data buffers size
@@ -77,6 +79,32 @@ static void recorder_event_callback (sdsRecPlayId_t id, uint32_t event) {
     }
 }
 
+#ifdef SIMULATOR
+// Simulate keypress
+static uint32_t simGetSignal (uint32_t mask) {
+  static uint32_t key_cnt = 0U;
+         uint32_t ret     = 0U;
+
+  switch (key_cnt) {
+    case 20U:                           // At 2 seconds
+      ret = mask;                       // Simulate keypress
+      break;
+#ifndef SDS_PLAY
+    case 120U:                          // At 12 seconds
+      ret = mask;                       // Simulate keypress
+      break;
+#endif
+    case 150U:                          // At 15 seconds
+      putchar(0x04);                    // Send signal to simulator to shutdown
+      break;
+  }
+
+  key_cnt++;
+
+  return ret;
+}
+#endif
+
 // Playback/Recording control thread function.
 __NO_RETURN void threadPlayRecManagement (void *argument) {
     int32_t status;
@@ -92,17 +120,27 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
 //    SDS_ASSERT(status == 0);
 //#endif
 
+#ifndef SIMULATOR
     printf("Tryint to connect to SDS server %s\n", SDSIO_SOCKET_SERVER_IP);
+#endif
+
     // Initialize SDS recorder/player
     status = sdsRecPlayInit(recorder_event_callback);
     SDS_ASSERT(status == SDS_REC_PLAY_OK);
+
+#ifndef SIMULATOR
     printf("Connected to %s\n", SDSIO_SOCKET_SERVER_IP);
+#endif
 
     interval_time = osKernelGetTickCount();
 
     for (;;) {     
         
+#ifdef SIMULATOR
+        btn_val  = simGetSignal(vioBUTTON0);
+#else
         btn_val  = vioGetSignal(vioBUTTON0);
+#endif
         keypress = btn_val & ~btn_prev;
         btn_prev = btn_val;
 
@@ -172,29 +210,36 @@ void set_sdsClosed(void)
  */
 static int32_t OpenStreams (void)
 {
-    int32_t status = 0;
-
 #if (defined SDS_PLAY) && (SDS_PLAY == 1)
     // Start playback of previously recorded Model Input data
-    playIdModelInput = sdsPlayOpen("ModelInput",
+    playIdModelInput = sdsPlayOpen("DataInput",
                                     sds_play_buf_model_in,
                                     sizeof(sds_play_buf_model_in));
-    SDS_ASSERT(playIdModelInput != NULL);
+    if (playIdModelInput == NULL) {
+        printf("Failed to open SDS stream for playback!\n");
+        return -1;
+    }
 #else
     // Start playback of previously recorded Model Input data
     recIdDataInput = sdsRecOpen("ModelRec",
                                     sds_rec_buf_model_in,
                                     sizeof(sds_rec_buf_model_in));
-    SDS_ASSERT(recIdDataInput != NULL);
+    if (recIdDataInput == NULL) {
+        printf("Failed to open SDS stream for recording data input!\n");
+        return -1;
+    }
 #endif
 
     // Start recording of Model Output data
     recIdModelOutput = sdsRecOpen("ModelOutput",
                                     sds_rec_buf_model_out,
                                     sizeof(sds_rec_buf_model_out));                                  
-    SDS_ASSERT(recIdModelOutput != NULL);
+    if (recIdModelOutput == NULL) {
+        printf("Failed to open SDS stream for recording model output!\n");
+        return -1;
+    }
 
-    return status;
+    return 0;
 }
 
 /**

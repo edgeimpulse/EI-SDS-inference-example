@@ -32,6 +32,7 @@ project:
     - AXI_LIMIT2_MEM_TYPE: 3
     - AXI_LIMIT3_MEM_TYPE: 3
     - TF_LITE_STATIC_MEMORY
+    - RTE_BMI323_INT_IO_PORT: 8
 
   groups:
     - group: Documentation
@@ -45,8 +46,9 @@ project:
     - group: perihperals
       files:
         - file: peripheral/sensor.cpp
-        - file: peripheral/inertial/bmi323_icm42670.c
-        - file: peripheral/inertial/i2c_over_i3c.c
+          for-context:
+            - .DebugRec
+            - .ReleaseRec
     - group: Application
       files:
         - file: app_main.c
@@ -58,8 +60,20 @@ project:
     - component: ARM::CMSIS:DSP
     - component: ARM::CMSIS:NN Lib
     - component: AlifSemiconductor::Device:SOC Peripherals:I2C_I3C
+      for-context:
+        - .DebugRec
+        - .ReleaseRec
+      
     - component: AlifSemiconductor::Device:SOC Peripherals:I3C
-    #- component: ARM::Machine Learning:NPU Support:Ethos-U Driver&Generic U55
+      for-context:
+        - .DebugRec+AE722F80F55D5LS
+        - .ReleaseRec+AE722F80F55D5LS
+    - component: AlifSemiconductor::Device:SOC Peripherals:GPIO
+      for-context: +AE722F80F55D5LS
+    - component: AlifSemiconductor::BSP:External peripherals:BMI323
+      for-context:
+        - .DebugRec+AE722F80F55D5LS
+        - .ReleaseRec+AE722F80F55D5LS
 
   layers:
     - layer: $SDSIO-Layer$

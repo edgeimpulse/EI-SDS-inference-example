@@ -72,6 +72,8 @@ layer:
     - component: CMSIS Driver:Ethernet MAC
     - component: CMSIS Driver:Ethernet PHY:Custom
     - component: CMSIS Driver:GPIO
+      define:
+        - CMSIS_GPIO_DISABLE_EVENTS
     - component: CMSIS Driver:I2C
     - component: CMSIS Driver:SAI
     - component: CMSIS Driver:SPI
