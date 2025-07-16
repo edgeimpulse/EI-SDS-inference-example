@@ -33,6 +33,7 @@ project:
     - AXI_LIMIT3_MEM_TYPE: 3
     - TF_LITE_STATIC_MEMORY
     - RTE_BMI323_INT_IO_PORT: 8
+    - FAKE_DATA: 0
 
   groups:
     - group: Documentation

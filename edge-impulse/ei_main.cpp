@@ -150,6 +150,7 @@ extern "C" int ei_main(void)
         switch(state) {
             case INFERENCE_STOPPED:
                 set_sdsClosed();
+                osEventFlagsClear(inferencing_event, INFERENCING_EVENT_STOP_FLAG);
                 flags = osEventFlagsWait(inferencing_event, INFERENCING_EVENT_START_FLAG, osFlagsWaitAny, osWaitForever);
                 if ((flags & INFERENCING_EVENT_START_FLAG) != 0U) {                    
                     state = INFERENCE_WAITING;
@@ -158,8 +159,17 @@ extern "C" int ei_main(void)
                 // nothing to do
             break;
             case INFERENCE_WAITING:
+#if (defined SDS_PLAY) && (SDS_PLAY == 1)
+                flags = osEventFlagsWait(inferencing_event, INFERENCING_EVENT_STOP_FLAG, osFlagsWaitAny, 0);
+                if ((flags & INFERENCING_EVENT_STOP_FLAG) != 0U) {                    
+                    //state = INFERENCE_STOPPED;
+                    ei_printf("ei_main -> INFERENCE_STOPPED\n");
+                    break;
+                }
+#endif
                 ei_printf("wait 1 sec");
                 osDelay(1000); // wait for 1 second before checking the event flags again
+#ifndef SDS_PLAY
                state = INFERENCE_SAMPLING;
                ei_printf("ei_main -> INFERENCE_SAMPLING\n");
             break;
@@ -167,6 +177,15 @@ extern "C" int ei_main(void)
                 flags = osEventFlagsWait(inferencing_event, INFERENCING_SENSOR_FULL | INFERENCING_EVENT_STOP_FLAG, osFlagsWaitAny, osWaitForever);
             break;
             case INFERENCE_DATA_READY:
+#endif
+#if (defined SDS_PLAY) && (SDS_PLAY == 1)
+                flags = osEventFlagsWait(inferencing_event, INFERENCING_EVENT_STOP_FLAG, osFlagsWaitAny, 0);
+                if ((flags & INFERENCING_EVENT_STOP_FLAG) != 0U) {                    
+                    //state = INFERENCE_STOPPED;
+                    ei_printf("ei_main -> INFERENCE_STOPPED\n");
+                    break;
+                }
+#endif
                 ei_run_inference();
                 state = INFERENCE_WAITING;
             break;
