@@ -36,12 +36,51 @@ solution:
       target-set:
         - set:
           images:
-            - project-context: EdgeImpulse.DebugPlay
+            - project-context: EdgeImpulse.DebugRec
           debugger:
             name: JLink Server
             port: 3333
             protocol: swd
+      define:
+        - ETHOSU55
+        - EI_ETHOS
+        - EI_ALIF_ADDR_TRANSLATION
+        - ARM_NPU
+        - ETHOS_U_NPU_ID: 55
+        - ETHOS_U_NPU_MEMORY_MODE: Shared_Sram
+        - ETHOS_U_NPU_CONFIG_ID: H256
+        - NPU_QCONFIG: 1
+        - NPU_REGIONCFG_0: 1
+        - NPU_REGIONCFG_1: 0
+        - NPU_REGIONCFG_2: 1
+        - AXI_LIMIT0_MEM_TYPE: 3
+        - AXI_LIMIT1_MEM_TYPE: 3
+        - AXI_LIMIT2_MEM_TYPE: 3
+        - AXI_LIMIT3_MEM_TYPE: 3
+        - TF_LITE_STATIC_MEMORY
+        - RTE_BMI323_INT_IO_PORT: 8
+        - FAKE_DATA: 0
+        - USE_OLD_IMU: 0
+        - ALIF_TARGET
 
+    - type: B-U585I-IOT02A_USB
+      device: STMicroelectronics::STM32U585AIIx
+      board: STMicroelectronics::B-U585I-IOT02A:Rev.C
+      variables:
+        - Board-Layer: $SolutionDir()$/Board/B-U585I-IOT02A/USBD_WiFi_Sensors_GCC/Board.clayer.yml
+        - SDS_Interface-Layer: $SolutionDir()$/SDS_Interface/USB/SDS_Interface.clayer.yml
+        - SDSIO-Layer: $SolutionDir()$/sdsio/usb/sdsio_usb.clayer.yml
+          copied-from: ${CMSIS_PACK_ROOT}/ARM/SDS/2.0.0/layer/sdsio/usb/sdsio_usb.clayer.yml
+      define:
+        - ST_TARGET
+    - type: STM32H735G-DK_USB
+      device: STM32H735IGKx
+      board: STM32H735G-DK:Rev.B
+      variables:
+        - Board-Layer: $SolutionDir()$/Board/STM32H735G-DK/Board.clayer.yml
+        - SDS_Interface-Layer: $SolutionDir()$/SDS_Interface/USB/SDS_Interface.clayer.yml
+      define:
+        - ST_TARGET
     - type: AVH-SSE-300 # simulator target
       board: ARM::V2M-MPS3-SSE-300-FVP
       device: ARM::SSE-300-MPS3
