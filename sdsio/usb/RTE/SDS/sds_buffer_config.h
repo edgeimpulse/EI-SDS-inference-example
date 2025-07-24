@@ -15,29 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Name:    sdsio_config_socket.h
- * Purpose: SDS IO via Socket (IoT Utility:Socket) configuration options
+ * Name:    sds_buffer_config.h
+ * Purpose: SDS Buffer configuration options
  * Rev.:    V2.0.0
  */
 
 //-------- <<< Use Configuration Wizard in Context Menu >>> --------------------
 
-// <h>SDS IO via Socket (IoT Utility:Socket)
+// <h>Synchronous Data Stream (SDS) Buffer
 
-//   <s.16>SDSIO-Server IP
-//   <i>SDSIO socket server IPv4 address
-//   <i>Default: "0.0.0.0"
-#define SDSIO_SOCKET_SERVER_IP          "169.254.2.13"
-
-//   <o>SDSIO-Server port
-//   <i>SDSIO socket server port
-//   <i>Default: 5050
-#define SDSIO_SOCKET_SERVER_PORT        5050U
-
-//   <o>Socket timeout
-//   <i>Socket receive timeout in ms
-//   <i>Default: 5000
-#define SDSIO_SOCKET_RECEIVE_TOUT       5000U
+//   <o>Maximum number of SDS Buffer streams
+//   <i>Default: 16
+#define SDS_BUFFER_MAX_STREAMS  16U
 
 // </h>
 
