@@ -212,7 +212,7 @@ static int32_t OpenStreams (void)
 {
 #if (defined SDS_PLAY) && (SDS_PLAY == 1)
     // Start playback of previously recorded Model Input data
-    playIdModelInput = sdsPlayOpen("DataInput",
+    playIdModelInput = sdsPlayOpen("ModelRec",
                                     sds_play_buf_model_in,
                                     sizeof(sds_play_buf_model_in));
     if (playIdModelInput == NULL) {

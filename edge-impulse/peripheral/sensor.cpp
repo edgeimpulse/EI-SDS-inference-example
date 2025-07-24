@@ -1,10 +1,13 @@
 #include "sensor.h"
-#include "Driver_IMU.h"
 #include <string.h>
 #include "../ei_main.h"
 #include <stdio.h>
-#include "Driver_I3C.h"
 
+#if USE_OLD_IMU == 1
+#include "inertial/bmi323_icm42670.h"
+#else
+#include "Driver_I3C.h"
+#include "Driver_IMU.h"
 /* IMU Driver instance */
 extern ARM_DRIVER_IMU BMI323;
 static ARM_DRIVER_IMU *Drv_IMU = &BMI323;
@@ -12,17 +15,20 @@ static ARM_DRIVER_IMU *Drv_IMU = &BMI323;
 /* i3c Driver */
 extern ARM_DRIVER_I3C Driver_I3C;
 static ARM_DRIVER_I3C *I3Cdrv = &Driver_I3C;
+#endif
+
 
 #define INERTIAL_AXIS_SAMPLED   6
 /* Constant defines -------------------------------------------------------- */
 #define CONVERT_G_TO_MS2 (9.80665f)
+#define CONVERT_mG_TO_MS2 (9.80665f/1000.0f)
 #define ACC_RAW_SCALING  (32767.5f)
 
-#define ACC_SCALE_FACTOR (2.0f * CONVERT_G_TO_MS2) / ACC_RAW_SCALING
+#define ACC_SCALE_FACTOR (16.0f * CONVERT_G_TO_MS2) / ACC_RAW_SCALING
 #define CONVERT_ADC_GYR (float)(250.0f / 32768.0f)
 
 /* Private variables ------------------------------------------------------- */
-static float imu_data[INERTIAL_AXIS_SAMPLED];
+//static float imu_data[INERTIAL_AXIS_SAMPLED];
 static float imu_data_bmi323[INERTIAL_AXIS_SAMPLED];
 
 static void ei_fusion_inertial_read_data_icm42670(int n_samples);
@@ -46,6 +52,11 @@ bool ei_inertial_init(void)
     return true;
     #endif
 
+#if USE_OLD_IMU == 1
+    if (bmi323_icm42670_init() != 0) {
+        printf("\r\n Error: BMI323/ICM42670 initialization failed.\r\n");        
+    }
+#else
     /* IMU initialization */
     ret = Drv_IMU->Initialize();
     if(ret != ARM_DRIVER_OK)
@@ -61,7 +72,7 @@ bool ei_inertial_init(void)
         printf("\r\n Error: IMU Power-up failed.\r\n");
         return false;
     }
-
+#endif
     imu_init = true;
     return true;
 }
@@ -82,8 +93,7 @@ static int fake_data_index = 0;
  */
 static void ei_fusion_inertial_read_data_bmi323(int n_samples)
 {
-    ARM_IMU_COORDINATES data;
-    ARM_IMU_STATUS      status;
+
     int32_t ret;
 
     memset(imu_data_bmi323, 0, sizeof(imu_data_bmi323));
@@ -97,17 +107,43 @@ static void ei_fusion_inertial_read_data_bmi323(int n_samples)
         imu_data_bmi323[i] = fake_data[fake_data_index++];
     }
 #else
-    /* Gets IMU status */
-    status = Drv_IMU->GetStatus();
 
-    if(status.drdy_status & IMU_ACCELEROMETER_DATA_READY) {
-        /* Read Accelerometer data */
-        ret = Drv_IMU->Control(IMU_GET_ACCELEROMETER_DATA,
-                                   (uint32_t)&data);
-        imu_data_bmi323[0] = (float)data.x * ACC_SCALE_FACTOR;
-        imu_data_bmi323[1] = (float)data.y * ACC_SCALE_FACTOR;
-        imu_data_bmi323[2] = (float)data.z * ACC_SCALE_FACTOR;
-    }
+#if USE_OLD_IMU == 1
+    xyz_accel_gyro_imu_s bmi_data;
+
+    getBMI323AllSensors(&bmi_data);
+
+    imu_data_bmi323[0] = (float)bmi_data.acc_x * ACC_SCALE_FACTOR;
+    imu_data_bmi323[1] = (float)bmi_data.acc_y * ACC_SCALE_FACTOR;
+    imu_data_bmi323[2] = (float)bmi_data.acc_z * ACC_SCALE_FACTOR;
+#else
+    ARM_IMU_COORDINATES data;
+    ARM_IMU_STATUS      status;
+    float               temperature;
+
+    /* Gets IMU status */
+    do {
+        status = Drv_IMU->GetStatus();
+
+        if(status.drdy_status & IMU_ACCELEROMETER_DATA_READY) {
+            /* Read Accelerometer data */
+            ret = Drv_IMU->Control(IMU_GET_ACCELEROMETER_DATA,
+                                    (uint32_t)&data);
+            imu_data_bmi323[0] = (float)data.x * ACC_SCALE_FACTOR;
+            imu_data_bmi323[1] = (float)data.y * ACC_SCALE_FACTOR;
+            imu_data_bmi323[2] = (float)data.z * ACC_SCALE_FACTOR;
+            break;
+            }
+        else {
+            osDelay(1);
+        }
+    }while(1);
+
+    //ret = Drv_IMU->Control(IMU_GET_TEMPERATURE_DATA,
+                                   //(uint32_t)&temperature);
+    //printf("\t\tTemp Data-->  %fC\r\n\r\n", temperature);
+#endif
+
 #endif
 }
 
@@ -117,7 +153,8 @@ __NO_RETURN void sensorThread (void *argument)
 
         ei_fusion_inertial_read_data_bmi323(3);
 
-        samples_callback(imu_data, 3 * sizeof(float));
+        samples_callback(imu_data_bmi323, 3 * sizeof(float));
+      
         // Sleep for a while to avoid busy waiting
         osDelay(10);    // fixed for now
     }

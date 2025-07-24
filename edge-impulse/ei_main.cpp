@@ -77,7 +77,7 @@ bool samples_callback(const void *raw_sample, uint32_t raw_sample_size)
 {
     if(state != INFERENCE_SAMPLING) {
         // stop collecting samples if we are not in SAMPLING state
-        return true;
+        return false;
     }
 
     float *sample = (float *)raw_sample;
