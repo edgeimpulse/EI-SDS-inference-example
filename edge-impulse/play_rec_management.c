@@ -23,7 +23,11 @@
 #include "ei_main.h"
 #include <stdio.h>
 #ifndef SIMULATOR
+#ifdef  RTE_SDS_IO_SOCKET
 #include "sdsio_config_socket.h"
+#else
+
+#endif
 #endif
 // Configuration
 
@@ -121,7 +125,14 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
 //#endif
 
 #ifndef SIMULATOR
+#ifdef RTE_SDS_IO_SOCKET
     printf("Tryint to connect to SDS server %s\n", SDSIO_SOCKET_SERVER_IP);
+#elif defined(RTE_SDS_IO_USB)
+    printf("Tryint to connect to SDS USB interface\n");
+#else
+
+#endif
+
 #endif
 
     // Initialize SDS recorder/player
@@ -129,7 +140,13 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
     SDS_ASSERT(status == SDS_REC_PLAY_OK);
 
 #ifndef SIMULATOR
+#ifdef RTE_SDS_IO_SOCKET
     printf("Connected to %s\n", SDSIO_SOCKET_SERVER_IP);
+#elif defined(RTE_SDS_IO_USB)
+    printf("Connected to SDS USB interface\n");
+#else
+
+#endif
 #endif
 
     interval_time = osKernelGetTickCount();

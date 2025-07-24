@@ -32,11 +32,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "cmsis_os2.h"
+#include "app_main.h"
 #include "play_rec_management.h"
 
 #include "ei_main.h"
-#include "peripheral/sensor.h"
+#ifndef SDS_PLAY
+#ifdef ALIF_TARGET
+#include "peripheral/alif/sensor.h"
+#else
+#include "peripheral/vstream/sensor_vstream.h"
+#endif
+#endif
+
+// Thread identifiers
+osThreadId_t thrId_threadSensor        = NULL;
+osThreadId_t thrId_threadRecManagement = NULL;
+osThreadId_t thrId_threadMLInference   = NULL;
 
 // sdsControlThread thread attributes
 osThreadAttr_t attr_sdsControlThread = {
@@ -46,13 +57,13 @@ osThreadAttr_t attr_sdsControlThread = {
 
 osThreadAttr_t attr_MLInferenceThread = {
   .name = "mlInference",
-  .priority = osPriorityNormal,
+  .priority = osPriorityBelowNormal,
 };
 
 
 osThreadAttr_t attr_sensorThread = {
   .name = "sensorThread",
-  .priority = osPriorityNormal,
+  .priority = osPriorityAboveNormal,
 };
 
 /*-----------------------------------------------------------------------------
@@ -72,10 +83,18 @@ __NO_RETURN void threadMLInference (void *argument) {
  * Application main function
  *----------------------------------------------------------------------------*/
 int32_t app_main (void) {
+#ifndef SDS_PLAY
+#ifdef ALIF_TARGET
+  ei_inertial_init();
+#endif
+#endif
+
   osKernelInitialize();
-  osThreadNew(threadMLInference,       NULL, &attr_MLInferenceThread);
-  osThreadNew(threadPlayRecManagement, NULL, &attr_sdsControlThread);
-  osThreadNew(sensorThread, NULL, &attr_sensorThread);
+  thrId_threadMLInference = osThreadNew(threadMLInference,       NULL, &attr_MLInferenceThread);
+  thrId_threadRecManagement = osThreadNew(threadPlayRecManagement, NULL, &attr_sdsControlThread);
+#ifndef SDS_PLAY
+  thrId_threadSensor = osThreadNew(sensorThread, NULL, &attr_sensorThread);
+#endif
   osKernelStart();
   return 0;
 }

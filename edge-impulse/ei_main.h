@@ -41,6 +41,7 @@ extern "C"
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "cmsis_os2.h"
 
 extern osEventFlagsId_t inferencing_event;

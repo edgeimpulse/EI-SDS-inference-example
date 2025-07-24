@@ -42,7 +42,13 @@
 
 #include <sdsio.h>
 #include "play_rec_management.h"
-#include "peripheral/sensor.h"
+#ifndef SDS_PLAY
+#ifdef ALIF_TARGET
+#include "peripheral/alif/sensor.h"
+#else
+#include "peripheral/vstream/sensor_vstream.h"
+#endif
+#endif
 
 typedef enum {
     INFERENCE_STOPPED,

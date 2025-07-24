@@ -1,6 +1,6 @@
 #include "sensor.h"
 #include <string.h>
-#include "../ei_main.h"
+#include "../../ei_main.h"
 #include <stdio.h>
 
 #if USE_OLD_IMU == 1
