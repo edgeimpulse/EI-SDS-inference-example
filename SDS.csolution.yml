@@ -66,7 +66,9 @@ solution:
       board: AppKit-E7-AIML:Gen 2
       variables:
         - Board-Layer: $SolutionDir()$/Board/AppKit-E7_M55_HP/Board_HP.clayer.yml
+        - SDS_Interface-Layer: $SolutionDir()$/SDS_Interface/USB/SDS_Interface.clayer.yml
         - SDSIO-Layer: $SolutionDir()$/sdsio/usb/sdsio_usb.clayer.yml
+          copied-from: ${CMSIS_PACK_ROOT}/ARM/SDS/2.0.0/layer/sdsio/usb/sdsio_usb.clayer.yml
       target-set:
         - set:
           debugger:

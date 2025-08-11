@@ -139,6 +139,16 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
     status = sdsRecPlayInit(recorder_event_callback);
     SDS_ASSERT(status == SDS_REC_PLAY_OK);
 
+    if (status != SDS_REC_PLAY_OK) {
+        printf("Failed to initialize SDS recorder/player!\n");
+        vioSetSignal(vioLED0, vioLEDon);
+        while(1) {
+            (void)osDelay(1u);
+        }
+        
+    }
+
+
 #ifndef SIMULATOR
 #ifdef RTE_SDS_IO_SOCKET
     printf("Connected to %s\n", SDSIO_SOCKET_SERVER_IP);
@@ -196,8 +206,6 @@ __NO_RETURN void threadPlayRecManagement (void *argument) {
 
         interval_time += 100U;
         osDelayUntil(interval_time);    // debounce
-
-        (void)osDelay(100U);
 
         // Do 1 second interval
         if (++cnt == 10U) {
