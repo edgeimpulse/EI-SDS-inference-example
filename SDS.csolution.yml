@@ -19,7 +19,6 @@ solution:
   packs:
     - pack: ARM::SDS # search SDS pack for layers
     - pack: AlifSemiconductor::Ensemble
-    #- pack: ARM::CMSIS      
     - pack: ARM::CMSIS@6.0.0
     - pack: ARM::CMSIS-RTX@^5.9.0
     - pack: ARM::CMSIS-DSP@1.15.0
@@ -36,7 +35,7 @@ solution:
       target-set:
         - set:
           images:
-            - project-context: DataTest.DebugRec
+            - project-context: EdgeImpulse.DebugRec
           debugger:
             name: JLink Server
             port: 3333
@@ -74,7 +73,7 @@ solution:
             name: JLink Server
             start-pname: M55_HP
           images:
-            - project-context: DataTest.DebugRec
+            - project-context: EdgeImpulse.DebugRec
       define:
         - ETHOSU55
         - EI_ETHOS
@@ -156,7 +155,5 @@ solution:
 
   # List related projects.
   projects:
-    - project: datatest/DataTest.cproject.yml
-    - project: algorithm/AlgorithmTest.cproject.yml
     - project: edge-impulse/EdgeImpulse.cproject.yml
   compiler: GCC

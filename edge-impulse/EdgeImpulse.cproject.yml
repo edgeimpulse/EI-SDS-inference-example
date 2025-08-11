@@ -32,8 +32,8 @@ project:
         - file: ei_classifier_porting.cpp
     - group: peripherals-alif
       for-context:
-        - .DebugRec+AE722F80F55D5LS
-        - .ReleaseRec+AE722F80F55D5LS
+        - +Alif-DevKit
+        - +Alif-AppKit
       files:
         - file: peripheral/alif/sensor.cpp
         - file: peripheral/alif/inertial/i2c_over_i3c.c
@@ -61,18 +61,19 @@ project:
     # alif peripherals
     - component: AlifSemiconductor::Device:SOC Peripherals:I2C_I3C
       for-context:
-        - .DebugRec+AE722F80F55D5LS
-        - .ReleaseRec+AE722F80F55D5LS
+        - +Alif-DevKit
+        - +Alif-AppKit
     - component: AlifSemiconductor::Device:SOC Peripherals:I3C
       for-context:
-        - .DebugRec+AE722F80F55D5LS
-        - .ReleaseRec+AE722F80F55D5LS
+        - +Alif-DevKit
+        - +Alif-AppKit
     - component: AlifSemiconductor::Device:SOC Peripherals:GPIO
-      for-context: +AE722F80F55D5LS
+      for-context:
+        - +Alif-DevKit
     - component: AlifSemiconductor::BSP:External peripherals:BMI323
       for-context:
-        - .DebugRec+AE722F80F55D5LS
-        - .ReleaseRec+AE722F80F55D5LS
+        - +Alif-DevKit
+        - +Alif-AppKit
 
   layers:
     - layer: $SDSIO-Layer$
