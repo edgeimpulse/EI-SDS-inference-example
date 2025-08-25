@@ -40,6 +40,10 @@
 #include "edge-impulse-sdk/classifier/ei_run_classifier.h"
 #include "model-parameters/model_variables.h"
 
+#if (EI_CLASSIFIER_SENSOR != EI_CLASSIFIER_SENSOR_ACCELEROMETER)
+#error "This example is configured for accelerometer data only"
+#endif
+
 #include <sdsio.h>
 #include "play_rec_management.h"
 #ifndef SDS_PLAY
