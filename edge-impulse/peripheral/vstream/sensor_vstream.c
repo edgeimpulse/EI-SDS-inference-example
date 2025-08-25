@@ -38,11 +38,11 @@
 #endif
 
 #ifndef SENSOR_BYTES_PER_SAMPLE
-#define SENSOR_BYTES_PER_SAMPLE         (6U)    // For accelerometer there are 3 items of 2 bytes per sample
+#define SENSOR_BYTES_PER_SAMPLE         (SENSOR_ITEMS_PER_SAMPLE * 2u)    // For accelerometer there are 3 items of 2 bytes per sample
 #endif
 
 #ifndef SENSOR_SAMPLES_PER_SLICE
-#define SENSOR_SAMPLES_PER_SLICE        (125)   // Number of samples per inference slice
+#define SENSOR_SAMPLES_PER_SLICE        (1)   // Number of samples per inference slice
 #endif
 
 // Number of bytes per inference slice
@@ -139,8 +139,7 @@ __NO_RETURN void sensorThread (void *argument) {
         ptrDriver_vStreamAccelerometer->ReleaseBlock();
 
         // Inform main ML thread that sensor data is ready
-        //osThreadFlagsSet(thrId_threadMLInference, SENSOR_DATA_READY_FLAG);
-        samples_callback(ptr_scaled_sensor_data, 3 * sizeof(float));
+        samples_callback(ptr_scaled_sensor_data, SENSOR_SLICE_SIZE_IN_ITEMS * sizeof(float));
     }
   }
 }
