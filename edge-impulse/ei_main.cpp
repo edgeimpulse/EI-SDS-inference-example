@@ -70,7 +70,7 @@ osEventFlagsId_t inferencing_event = NULL;
 static inference_state_t state = INFERENCE_STOPPED;
 
 static uint16_t samples_per_inference;
-static float samples_circ_buff[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE];
+static float samples_circ_buff[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE]  __ALIGNED(4);
 static int samples_wr_index = 0;
 
 static void ei_run_inference(void);
@@ -85,36 +85,38 @@ extern sdsRecPlayId_t recIdDataInput;
  */
 bool samples_callback(const void *raw_sample, uint32_t raw_sample_size)
 {
-    if(state != INFERENCE_SAMPLING) {
+    if (state != INFERENCE_SAMPLING) {
         // stop collecting samples if we are not in SAMPLING state
         return false;
     }
 
     float *sample = (float *)raw_sample;
 
-    for(int i = 0; i < (int)(raw_sample_size / sizeof(float)); i++) {
+    for (int i = 0; i < (int)(raw_sample_size / sizeof(float)); i++) {
         samples_circ_buff[samples_wr_index++] = sample[i];
-        if(samples_wr_index > EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE) {
+        if (samples_wr_index > EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE) {
             /* start from beginning of the circular buffer */
             samples_wr_index = 0;
         }
-        if(samples_wr_index >= samples_per_inference) {
+
+        if (samples_wr_index >= samples_per_inference) {
             
             state = INFERENCE_DATA_READY;
             osEventFlagsSet(inferencing_event, INFERENCING_SENSOR_FULL);
             ei_printf("Samples collected: %d\n", samples_wr_index);
             ei_printf("Recording done\n");
+
+                    // Timestamp of read of input data for inference
+            uint32_t rec_timestamp;
+    
+            // Record raw sample data
+            rec_timestamp = osKernelGetTickCount();
+            uint32_t num  = sdsRecWrite(recIdDataInput, rec_timestamp, samples_circ_buff, sizeof(samples_circ_buff) );
+            SDS_ASSERT(num == (sizeof(samples_circ_buff)));
+
             return true;
         }
     }
-
-        // Timestamp of read of input data for inference
-    uint32_t rec_timestamp;
-    
-    // Record raw sample data
-    rec_timestamp = osKernelGetTickCount();
-    uint32_t num  = sdsRecWrite(recIdDataInput, rec_timestamp, raw_sample, raw_sample_size);
-    SDS_ASSERT(num == (raw_sample_size));    
 
     return false;
 }
@@ -244,7 +246,7 @@ extern "C" void ei_start_impulse(void)
  */
 extern "C" void ei_stop_impulse(void)
 {    
-    if(state != INFERENCE_STOPPED) {
+    if (state != INFERENCE_STOPPED) {
         state = INFERENCE_STOPPED;
         ei_printf("Inferencing stopped by user\r\n");
         osEventFlagsSet(inferencing_event, INFERENCING_EVENT_STOP_FLAG);

@@ -6,15 +6,11 @@
 #if USE_OLD_IMU == 1
 #include "inertial/bmi323_icm42670.h"
 #else
-#include "Driver_I3C.h"
 #include "Driver_IMU.h"
 /* IMU Driver instance */
 extern ARM_DRIVER_IMU BMI323;
 static ARM_DRIVER_IMU *Drv_IMU = &BMI323;
 
-/* i3c Driver */
-extern ARM_DRIVER_I3C Driver_I3C;
-static ARM_DRIVER_I3C *I3Cdrv = &Driver_I3C;
 #endif
 
 
@@ -120,6 +116,8 @@ static void ei_fusion_inertial_read_data_bmi323(int n_samples)
     ARM_IMU_COORDINATES data;
     ARM_IMU_STATUS      status;
     float               temperature;
+
+    Drv_IMU->Control(IMU_SET_INTERRUPT, true);  // mandatory ?
 
     /* Gets IMU status */
     do {

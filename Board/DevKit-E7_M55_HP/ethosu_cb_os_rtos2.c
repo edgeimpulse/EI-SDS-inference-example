@@ -28,18 +28,20 @@
   \brief Create a mutex object.
   \return Pointer to a mutex object.
 */
-void *ethosu_mutex_create(void) {
-  osMutexId_t mutex_id = osMutexNew(NULL);
-  return (void *)mutex_id;
+void *ethosu_mutex_create(void)
+{
+    osMutexId_t mutex_id = osMutexNew(NULL);
+    return (void *) mutex_id;
 }
 
 /**
   \brief Destroy a mutex object.
   \param[in]  mutex  mutex object.
 */
-void ethosu_mutex_destroy(void *mutex) {
-  osMutexId_t mutex_id = (osMutexId_t)mutex;
-  osMutexDelete(mutex_id);
+void ethosu_mutex_destroy(void *mutex)
+{
+    osMutexId_t mutex_id = (osMutexId_t) mutex;
+    osMutexDelete(mutex_id);
 }
 
 /**
@@ -47,18 +49,19 @@ void ethosu_mutex_destroy(void *mutex) {
   \param[in] mutex  mutex object.
   \return 0 on success, else negative error codes
 */
-int ethosu_mutex_lock(void *mutex) {
-  osMutexId_t mutex_id = (osMutexId_t)mutex;
-  osStatus_t status;
-  int rval;
+int ethosu_mutex_lock(void *mutex)
+{
+    osMutexId_t mutex_id = (osMutexId_t) mutex;
+    osStatus_t  status;
+    int         rval;
 
-  status = osMutexAcquire(mutex_id, osWaitForever);
-  if (status == osOK) {
-    rval = 0;
-  } else {
-    rval = -1;
-  }
-  return rval;
+    status = osMutexAcquire(mutex_id, osWaitForever);
+    if (status == osOK) {
+        rval = 0;
+    } else {
+        rval = -1;
+    }
+    return rval;
 }
 
 /**
@@ -66,39 +69,41 @@ int ethosu_mutex_lock(void *mutex) {
   \param[in] mutex  mutex object.
   \return 0 on success, else negative error codes
 */
-int ethosu_mutex_unlock(void *mutex) {
-  osMutexId_t mutex_id = (osMutexId_t)mutex;
-  osStatus_t status;
-  int rval;
+int ethosu_mutex_unlock(void *mutex)
+{
+    osMutexId_t mutex_id = (osMutexId_t) mutex;
+    osStatus_t  status;
+    int         rval;
 
-  status = osMutexRelease(mutex_id);
-  if (status == osOK) {
-    rval = 0;
-  } else {
-    rval = -1;
-  }
-  return rval;
+    status = osMutexRelease(mutex_id);
+    if (status == osOK) {
+        rval = 0;
+    } else {
+        rval = -1;
+    }
+    return rval;
 }
-
 
 /**
   \brief Create a semaphore object.
   \return Pointer to a semaphore object.
 */
-void *ethosu_semaphore_create(void) {
-  osSemaphoreId_t sem_id;
+void *ethosu_semaphore_create(void)
+{
+    osSemaphoreId_t sem_id;
 
-  sem_id = osSemaphoreNew(1, 0, NULL);
-  return (void *)sem_id;
+    sem_id = osSemaphoreNew(1, 0, NULL);
+    return (void *) sem_id;
 }
 
 /**
   \brief Destroy a semaphore object.
   \param[in]  sem  semaphore object.
 */
-void ethosu_semaphore_destroy(void *sem) {
-  osSemaphoreId_t sem_id = (osSemaphoreId_t)sem;
-  osSemaphoreDelete(sem_id);
+void ethosu_semaphore_destroy(void *sem)
+{
+    osSemaphoreId_t sem_id = (osSemaphoreId_t) sem;
+    osSemaphoreDelete(sem_id);
 }
 
 /**
@@ -107,18 +112,19 @@ void ethosu_semaphore_destroy(void *sem) {
   \param[in]  timeout  timeout value in ticks.
   \return 0 on success, else negative error codes
 */
-int ethosu_semaphore_take(void *sem, uint64_t timeout) {
-  osSemaphoreId_t sem_id = (osSemaphoreId_t)sem;
-  osStatus_t status;
-  int rval;
+int ethosu_semaphore_take(void *sem, uint64_t timeout)
+{
+    osSemaphoreId_t sem_id = (osSemaphoreId_t) sem;
+    osStatus_t      status;
+    int             rval;
 
-  status = osSemaphoreAcquire(sem_id, timeout);
-  if (status == osOK) {
-    rval = 0;
-  } else {
-    rval = -1;
-  }
-  return rval;
+    status = osSemaphoreAcquire(sem_id, timeout);
+    if (status == osOK) {
+        rval = 0;
+    } else {
+        rval = -1;
+    }
+    return rval;
 }
 
 /**
@@ -126,18 +132,19 @@ int ethosu_semaphore_take(void *sem, uint64_t timeout) {
   \param[in]  sem  semaphore object.
   \return 0 on success, else negative error codes
 */
-int ethosu_semaphore_give(void *sem) {
-  osSemaphoreId_t sem_id = (osSemaphoreId_t)sem;
-  osStatus_t status;
-  int rval;
+int ethosu_semaphore_give(void *sem)
+{
+    osSemaphoreId_t sem_id = (osSemaphoreId_t) sem;
+    osStatus_t      status;
+    int             rval;
 
-  status = osSemaphoreRelease(sem_id);
-  if (status == osOK) {
-    rval = 0;
-  } else {
-    rval = -1;
-  }
-  return rval;
+    status = osSemaphoreRelease(sem_id);
+    if (status == osOK) {
+        rval = 0;
+    } else {
+        rval = -1;
+    }
+    return rval;
 }
 
 #endif /* RTE_CMSIS_RTOS2 */

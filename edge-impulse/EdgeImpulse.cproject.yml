@@ -18,10 +18,10 @@ project:
     - OS_TIMER_THREAD_NAME: \"Timer\"
 
   add-path:
-      - edge-impulse
-      - ./
-  groups:
+    - edge-impulse
+    - ./
 
+  groups:
     - group: Documentation
       files:
         - file: ../README.md
@@ -46,7 +46,7 @@ project:
         - .ReleaseRec+STM32H735G-DK_USB
       files:
         - file: peripheral/vstream/sensor_vstream.c
-   
+
     - group: Application
       files:
         - file: app_main.c
@@ -74,12 +74,13 @@ project:
       for-context:
         - +Alif-DevKit
         - +Alif-AppKit
+    - component: USB&MDK:CORE
 
   layers:
     - layer: $SDSIO-Layer$
-      type:  SDSIO
+      type: SDSIO
     - layer: $Board-Layer$
-      type:  Board
+      type: Board
     - layer: model/edgeimpulse.clayer.yml
 
   output:

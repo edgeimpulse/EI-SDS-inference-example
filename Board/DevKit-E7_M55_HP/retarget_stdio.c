@@ -26,50 +26,49 @@
 
 /* Compile-time configuration */
 #ifndef UART_BAUDRATE
-#define UART_BAUDRATE     115200
+#define UART_BAUDRATE 115200
 #endif
 
 /* Exported function */
-extern int stdio_init (void);
+extern int stdio_init(void);
 
 /* Reference to the underlying USART driver */
-#define ptrUSART          (&ARM_Driver_USART_(RETARGET_STDIO_UART))
+#define ptrUSART (&ARM_Driver_USART_(RETARGET_STDIO_UART))
 
 /**
   Initialize stdio
 
   \return          0 on success, or -1 on error.
 */
-int stdio_init (void) {
+int stdio_init(void)
+{
 
-  if (ptrUSART->Initialize(NULL) != ARM_DRIVER_OK) {
-    return -1;
-  }
+    if (ptrUSART->Initialize(NULL) != ARM_DRIVER_OK) {
+        return -1;
+    }
 
-  if (ptrUSART->PowerControl(ARM_POWER_FULL) != ARM_DRIVER_OK) {
-    return -1;
-  }
+    if (ptrUSART->PowerControl(ARM_POWER_FULL) != ARM_DRIVER_OK) {
+        return -1;
+    }
 
-  if (ptrUSART->Control(ARM_USART_MODE_ASYNCHRONOUS |
-                        ARM_USART_DATA_BITS_8       |
-                        ARM_USART_PARITY_NONE       |
-                        ARM_USART_STOP_BITS_1       |
-                        ARM_USART_FLOW_CONTROL_NONE,
-                        UART_BAUDRATE) != ARM_DRIVER_OK) {
-    return -1;
-  }
+    if (ptrUSART->Control(ARM_USART_MODE_ASYNCHRONOUS | ARM_USART_DATA_BITS_8 |
+                              ARM_USART_PARITY_NONE | ARM_USART_STOP_BITS_1 |
+                              ARM_USART_FLOW_CONTROL_NONE,
+                          UART_BAUDRATE) != ARM_DRIVER_OK) {
+        return -1;
+    }
 
-  #if defined(RTE_CMSIS_Compiler_STDIN_Custom)
-  if (ptrUSART->Control(ARM_USART_CONTROL_RX, 1U) != ARM_DRIVER_OK) {
-    return -1;
-  }
-  #endif
+#if defined(RTE_CMSIS_Compiler_STDIN_Custom)
+    if (ptrUSART->Control(ARM_USART_CONTROL_RX, 1U) != ARM_DRIVER_OK) {
+        return -1;
+    }
+#endif
 
-  #if defined(RTE_CMSIS_Compiler_STDERR_Custom) || defined(RTE_CMSIS_Compiler_STDOUT_Custom)
-  if (ptrUSART->Control(ARM_USART_CONTROL_TX, 1U) != ARM_DRIVER_OK) {
-    return -1;
-  }
-  #endif
+#if defined(RTE_CMSIS_Compiler_STDERR_Custom) || defined(RTE_CMSIS_Compiler_STDOUT_Custom)
+    if (ptrUSART->Control(ARM_USART_CONTROL_TX, 1U) != ARM_DRIVER_OK) {
+        return -1;
+    }
+#endif
 
-  return 0;
+    return 0;
 }

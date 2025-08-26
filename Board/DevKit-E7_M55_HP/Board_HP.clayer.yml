@@ -27,7 +27,7 @@ layer:
         - STDIN
         - STDOUT
         - STDERR
-        - Heap: 65536
+        - Heap: 98304
       consumes:
         - CMSIS-RTOS2
 
@@ -88,20 +88,19 @@ layer:
     - component: CMSIS-Compiler:STDOUT:Custom
 
     - component: Device:Startup
-    - component: Device:SKU&AE722F80F55D5
+    - component: BSP:Board Config
 
     - component: Device:SOC Peripherals:DMA
-    - component: Device:SOC Peripherals:MHU
     - component: Device:SOC Peripherals:PINCONF
+    - component: Device:SOC Peripherals:MHU
 
     - component: Machine Learning:NPU Support:Ethos-U Driver&Generic U55
-
-    - component: Services:Secure Enclave:core&Source
-    - component: Services:Secure Enclave:Initialization Helper&Source
 
     - component: Services:Retarget IO:STDERR
     - component: Services:Retarget IO:STDIN
     - component: Services:Retarget IO:STDOUT
+    - component: Services:Secure Enclave:core&Source
+    - component: Services:Secure Enclave:Initialization Helper&Source
 
   # List of source groups and files added to a project or a layer.
   groups:

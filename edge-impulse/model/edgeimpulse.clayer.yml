@@ -3,9 +3,9 @@ layer:
   description: Edge Impulse SDK and model
 
   packs:
-    - pack: EdgeImpulse::EI-SDK@1.72.19
-    - pack: EdgeImpulse::Tutorial_Continuous_motion_recog@198.0.0
+    - pack: EdgeImpulse::EI-SDK@1.74.8
+    - pack: EdgeImpulse::Tutorial_Continuous_motion_recog@203.0.0
 
   components:
-    - component: EdgeImpulse::EdgeImpulse:SDK@1.72.19
-    - component: EdgeImpulse:model:Tutorial_Continuous_motion_recog@198.0.0
+    - component: EdgeImpulse::EdgeImpulse:SDK@1.74.8
+    - component: EdgeImpulse::EdgeImpulse:model:Tutorial_Continuous_motion_recog@203.0.0
