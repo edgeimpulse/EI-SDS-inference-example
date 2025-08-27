@@ -58,7 +58,6 @@ solution:
         - AXI_LIMIT3_MEM_TYPE: 3
         - TF_LITE_STATIC_MEMORY
         - RTE_BMI323_INT_IO_PORT: 8
-        - FAKE_DATA: 0
         - USE_OLD_IMU: 0
         - ALIF_TARGET
     - type: Alif-AppKit
@@ -94,7 +93,6 @@ solution:
         - AXI_LIMIT3_MEM_TYPE: 3
         - TF_LITE_STATIC_MEMORY
         - RTE_BMI323_INT_IO_PORT: 8
-        - FAKE_DATA: 0
         - USE_OLD_IMU: 0
         - ALIF_TARGET
 
