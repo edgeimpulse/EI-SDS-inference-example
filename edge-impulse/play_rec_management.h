@@ -67,6 +67,7 @@ extern sdsRecPlayId_t   recIdModelOutput;
 extern void threadPlayRecManagement (void *argument);
 extern uint8_t get_sdsStreamingState(void);
 extern void set_sdsClosed(void);
+extern void set_sdsStop(void);
 
 #ifdef  __cplusplus
 }

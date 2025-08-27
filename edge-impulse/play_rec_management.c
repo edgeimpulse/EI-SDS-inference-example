@@ -223,6 +223,13 @@ uint8_t get_sdsStreamingState(void)
     return sdsStreamingState;
 }
 
+void set_sdsStop(void)
+{
+    if (SDS_STREAMING_ACTIVE == sdsStreamingState) {
+        sdsStreamingState = SDS_STREAMING_STOP;
+    }
+}
+
 void set_sdsClosed(void)
 {
     if (SDS_STREAMING_STOP == sdsStreamingState) {

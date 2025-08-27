@@ -73,7 +73,7 @@ static uint16_t samples_per_inference;
 static float samples_circ_buff[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE]  __ALIGNED(4);
 static int samples_wr_index = 0;
 
-static void ei_run_inference(void);
+static bool ei_run_inference(void);
 extern sdsRecPlayId_t recIdDataInput;
 
 #define INFERENCING_EVENT_START_FLAG    (1U << 0)
@@ -129,19 +129,19 @@ int raw_feature_get_data(size_t offset, size_t length, float *out_ptr)
 #if (defined SDS_PLAY) && (SDS_PLAY == 1)
 
     // Playback previously recorded data from ModelInput.0.sds file
-    uint32_t num = sdsPlayRead(playIdModelInput, &timestamp, (void *)out_ptr, (length * sizeof(float)));
+    int32_t num = sdsPlayRead(playIdModelInput, &timestamp, (void *)out_ptr, (length * sizeof(float)));
 
-    if (num != (length * sizeof(float))) {
-      // Not enough data read, probably end of playback
-      // Clear last buffer for inference to allow inference to execute
-      memset((void *)out_ptr, 0, (length * sizeof(float)));
+    if (num == SDS_PLAY_EOS) {
+        ei_printf("No more playback data available\n");
+        set_sdsStop();
+        ei_stop_impulse();
+        return EIDSP_SIGNAL_SIZE_MISMATCH;
     }
 
-    if (num == SDSIO_EOS) {
-        // No more playback data available
-        // Stop Playback/Recording
-        //playRecActive = 0U;
-        //playRecStop   = 1U;
+    if (num != (length * sizeof(float))) {
+        // Not enough data read, probably end of playback
+        // Clear last buffer for inference to allow inference to execute
+        memset((void *)out_ptr, 0, (length * sizeof(float)));
     }
 
 #else
@@ -192,13 +192,18 @@ extern "C" int ei_main(void)
 #endif
 #if (defined SDS_PLAY) && (SDS_PLAY == 1)
                 flags = osEventFlagsWait(inferencing_event, INFERENCING_EVENT_STOP_FLAG, osFlagsWaitAny, 0);
-                if ((flags & INFERENCING_EVENT_STOP_FLAG) != 0U) {                    
+                if (((flags & INFERENCING_EVENT_STOP_FLAG) != 0U) || (state == INFERENCE_STOPPED)) {                    
                     //state = INFERENCE_STOPPED;
                     ei_printf("ei_main -> INFERENCE_STOPPED\n");
                     break;
                 }
+
 #endif
-                ei_run_inference();
+                if (ei_run_inference() == false) {
+                    ei_printf("ei_run_inference() failed\r\n");
+                    set_sdsStop();
+                    state = INFERENCE_STOPPED;                    
+                }
                 state = INFERENCE_WAITING;
             break;
                 default:
@@ -267,7 +272,7 @@ extern "C" bool is_inference_running(void)
 /**
  * @brief      Run the inference
  */
-static void ei_run_inference(void)
+static bool ei_run_inference(void)
 {
     ei_impulse_result_t result = {nullptr};
 
@@ -292,7 +297,7 @@ static void ei_run_inference(void)
 
     if (res != 0) {
         ei_printf("ERR: Failed to run classifier\n");
-        return;
+        return false;
     }
 
     display_results(&ei_default_impulse, &result);
@@ -324,8 +329,10 @@ static void ei_run_inference(void)
 #endif
 
     // Record model output data
-    uint32_t num = sdsRecWrite(recIdModelOutput, timestamp, model_out_results, num_element * sizeof(float));
+    int32_t num = sdsRecWrite(recIdModelOutput, timestamp, model_out_results, num_element * sizeof(float));
     SDS_ASSERT(num == (num_element * sizeof(float)));
 
     ei_free(model_out_results);
+
+    return true;
 }
