@@ -199,15 +199,23 @@ extern "C" int ei_main(void)
                 }
 
 #endif
-                if (ei_run_inference() == false) {
-                    ei_printf("ei_run_inference() failed\r\n");
-                    set_sdsStop();
-                    state = INFERENCE_STOPPED;                    
+                bool ret = ei_run_inference();
+                if ((ret == true) && (state != INFERENCE_STOPPED)) {
+                    state = INFERENCE_WAITING;
+                    ei_printf("ei_main -> INFERENCE_WAITING\n");
                 }
-                state = INFERENCE_WAITING;
+                else {
+                    ei_printf("ei_run_inference() failed\r\n");
+                    if (get_sdsStreamingState() == SDS_STREAMING_ACTIVE) {
+                        set_sdsStop();
+                    }
+                    else {
+                        //set_sdsClosed();
+                    }                    
+                    state = INFERENCE_STOPPED;
+                }
+                
             break;
-                default:
-                    break;
             }
 
         ei_sleep(2000);
