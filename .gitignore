@@ -84,3 +84,6 @@ RTE_Components.h
 
 .cmd.jlink
 *.dbgconf
+
+# edge impulse model
+edge-impulse/model/edgeimpulse.clayer.yml
