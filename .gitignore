@@ -81,3 +81,6 @@ uv2csolution.log
 RTE_Components.h
 
 *.base@*
+
+.cmd.jlink
+*.dbgconf
