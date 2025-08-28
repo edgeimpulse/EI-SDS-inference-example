@@ -122,18 +122,18 @@ __NO_RETURN void sensorThread (void *argument) {
         // Set pointer for scaled sensor data
         ptr_scaled_sensor_data = scaled_sensor_data;
 
-        for (uint32_t i = 0U; i < SENSOR_SAMPLES_PER_SLICE; i++) {
-          // Convert each sample value for x, y, z from int16 to float scaled to range used during model training
-          ptr_scaled_sensor_data[0]  = ((float)ptr_acc_sample->x) / 1638.4f;
-          ptr_scaled_sensor_data[1]  = ((float)ptr_acc_sample->y) / 1638.4f;
-          ptr_scaled_sensor_data[2]  = ((float)ptr_acc_sample->z) / 1638.4f;
-          ptr_acc_sample            += 1U;
-          ptr_scaled_sensor_data    += SENSOR_ITEMS_PER_SAMPLE;
 
-          // Used for debugging, to visually check that data is plausible
-          // printf("Acc x=%i, y=%i, z=%i\r\n",         ptr_acc_sample->x           ,         ptr_acc_sample->y           ,         ptr_acc_sample->z           );
-          // printf("Acc x=%f, y=%f, z=%f\r\n", ((float)ptr_acc_sample->x) / 1638.4f, ((float)ptr_acc_sample->y) / 1638.4f, ((float)ptr_acc_sample->z) / 1638.4f);
-        }
+        // Convert each sample value for x, y, z from int16 to float scaled to range used during model training
+        ptr_scaled_sensor_data[0]  = ((float)ptr_acc_sample->x) / 1638.4f;
+        ptr_scaled_sensor_data[1]  = ((float)ptr_acc_sample->y) / 1638.4f;
+        ptr_scaled_sensor_data[2]  = ((float)ptr_acc_sample->z) / 1638.4f;
+        //ptr_acc_sample            += 1U;
+        //ptr_scaled_sensor_data    += SENSOR_ITEMS_PER_SAMPLE;
+
+        // Used for debugging, to visually check that data is plausible
+        //printf("from driver Acc x=%i, y=%i, z=%i\r\n",         ptr_acc_sample->x           ,         ptr_acc_sample->y           ,         ptr_acc_sample->z           );
+        //printf("converterd Acc x=%f, y=%f, z=%f\r\n", ((float)ptr_acc_sample->x) / 1638.4f, ((float)ptr_acc_sample->y) / 1638.4f, ((float)ptr_acc_sample->z) / 1638.4f);
+
 
         // Release data block
         ptrDriver_vStreamAccelerometer->ReleaseBlock();
