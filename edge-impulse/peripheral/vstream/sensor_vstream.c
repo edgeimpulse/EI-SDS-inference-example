@@ -27,9 +27,8 @@
 #include "cmsis_os2.h"
 #include "cmsis_compiler.h"
 
-//#include "rec_management.h"
-
 #include "vstream_accelerometer.h"
+#include "model-parameters/model_metadata.h"
 
 // Configuration
 
@@ -70,33 +69,16 @@ static uint8_t vstream_buf[SENSOR_SLICE_SIZE_IN_BYTES*2] __ALIGNED(4);
 // ML input data (1 slice of items in float format)
 static float   scaled_sensor_data[SENSOR_SLICE_SIZE_IN_ITEMS];
 
-#if 0
-// Get sensor data for inference
-int sensor_get_data (size_t offset, size_t length, float *out_ptr)
-{
-    memcpy(out_ptr, scaled_sensor_data + offset, length * sizeof(float));
-
-    // If recording is active then record model input data
-    if (recActive != 0U) {
-      rec_timestamp = osKernelGetTickCount();
-      uint32_t num  = sdsRecWrite(recIdModelInput, rec_timestamp, scaled_sensor_data + offset, length * sizeof(float));
-      SDS_ASSERT(num == (length * sizeof(float)));
-    }
-
-    return 0;
-}
-#endif
-
 // Function that sends event when data is available with vStream
 static void vStreamSensorEvent (uint32_t event_flags) {
 
-  if ((event_flags & VSTREAM_EVENT_DATA) != 0U) {
+    if ((event_flags & VSTREAM_EVENT_DATA) != 0U) {
     // Inform main ML thread that sensor data is ready
-    osThreadFlagsSet(thrId_threadSensor, SENSOR_DATA_READY_FLAG);
-  }
-  if ((event_flags & VSTREAM_EVENT_OVERFLOW) != 0U) {
-    printf("Warning: Accelerometer overflow event!\r\n");
-  }
+        osThreadFlagsSet(thrId_threadSensor, SENSOR_DATA_READY_FLAG);
+    }
+    if ((event_flags & VSTREAM_EVENT_OVERFLOW) != 0U) {
+        printf("Warning: Accelerometer overflow event!\r\n");
+    }
 
 }
 
@@ -104,6 +86,7 @@ static void vStreamSensorEvent (uint32_t event_flags) {
 __NO_RETURN void sensorThread (void *argument) {
   accelerometer_sample_t *ptr_acc_sample;
   float                  *ptr_scaled_sensor_data;
+  uint32_t interval_time = 0U;
   (void)argument;
 
   ptrDriver_vStreamAccelerometer->Initialize(vStreamSensorEvent);
@@ -111,6 +94,8 @@ __NO_RETURN void sensorThread (void *argument) {
   ptrDriver_vStreamAccelerometer->Start(VSTREAM_MODE_CONTINUOUS);
 
   for (;;) {
+
+    interval_time = osKernelGetTickCount(); // get time
     uint32_t flags = osThreadFlagsWait(SENSOR_DATA_READY_FLAG, osFlagsWaitAny, osWaitForever);
 
     if (((flags & osFlagsError)           == 0U) &&         // If not an error and
@@ -130,16 +115,15 @@ __NO_RETURN void sensorThread (void *argument) {
         //ptr_acc_sample            += 1U;
         //ptr_scaled_sensor_data    += SENSOR_ITEMS_PER_SAMPLE;
 
-        // Used for debugging, to visually check that data is plausible
-        //printf("from driver Acc x=%i, y=%i, z=%i\r\n",         ptr_acc_sample->x           ,         ptr_acc_sample->y           ,         ptr_acc_sample->z           );
-        //printf("converterd Acc x=%f, y=%f, z=%f\r\n", ((float)ptr_acc_sample->x) / 1638.4f, ((float)ptr_acc_sample->y) / 1638.4f, ((float)ptr_acc_sample->z) / 1638.4f);
-
-
         // Release data block
         ptrDriver_vStreamAccelerometer->ReleaseBlock();
 
         // Inform main ML thread that sensor data is ready
         samples_callback(ptr_scaled_sensor_data, SENSOR_SLICE_SIZE_IN_ITEMS * sizeof(float));
+
+        // Wait for time interval simulating real world sensor data acquisition
+        interval_time += EI_CLASSIFIER_INTERVAL_MS;
+        osDelayUntil(interval_time);
     }
   }
 }
