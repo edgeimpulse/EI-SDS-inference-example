@@ -75,6 +75,9 @@ project:
         - +Alif-DevKit
         - +Alif-AppKit
     - component: USB&MDK:CORE
+      for-context:
+        - +Alif-DevKit
+        - +Alif-AppKit
 
   layers:
     - layer: $SDSIO-Layer$
