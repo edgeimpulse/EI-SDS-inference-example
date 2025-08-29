@@ -89,13 +89,15 @@ __NO_RETURN void sensorThread (void *argument) {
   uint32_t interval_time = 0U;
   (void)argument;
 
+  uint32_t ticks_per_msec = osKernelGetTickFreq() / 1000;
+
   ptrDriver_vStreamAccelerometer->Initialize(vStreamSensorEvent);
   ptrDriver_vStreamAccelerometer->SetBuf(&vstream_buf, sizeof(vstream_buf), SENSOR_SLICE_SIZE_IN_BYTES);
-  ptrDriver_vStreamAccelerometer->Start(VSTREAM_MODE_CONTINUOUS);
 
   for (;;) {
 
     interval_time = osKernelGetTickCount(); // get time
+    ptrDriver_vStreamAccelerometer->Start(VSTREAM_MODE_SINGLE); // start reading one sample and wait for it
     uint32_t flags = osThreadFlagsWait(SENSOR_DATA_READY_FLAG, osFlagsWaitAny, osWaitForever);
 
     if (((flags & osFlagsError)           == 0U) &&         // If not an error and
@@ -107,22 +109,19 @@ __NO_RETURN void sensorThread (void *argument) {
         // Set pointer for scaled sensor data
         ptr_scaled_sensor_data = scaled_sensor_data;
 
-
         // Convert each sample value for x, y, z from int16 to float scaled to range used during model training
         ptr_scaled_sensor_data[0]  = ((float)ptr_acc_sample->x) / 1638.4f;
         ptr_scaled_sensor_data[1]  = ((float)ptr_acc_sample->y) / 1638.4f;
         ptr_scaled_sensor_data[2]  = ((float)ptr_acc_sample->z) / 1638.4f;
-        //ptr_acc_sample            += 1U;
-        //ptr_scaled_sensor_data    += SENSOR_ITEMS_PER_SAMPLE;
 
         // Release data block
         ptrDriver_vStreamAccelerometer->ReleaseBlock();
 
         // Inform main ML thread that sensor data is ready
         samples_callback(ptr_scaled_sensor_data, SENSOR_SLICE_SIZE_IN_ITEMS * sizeof(float));
-
+        
         // Wait for time interval simulating real world sensor data acquisition
-        interval_time += EI_CLASSIFIER_INTERVAL_MS;
+        interval_time += (EI_CLASSIFIER_INTERVAL_MS * ticks_per_msec);
         osDelayUntil(interval_time);
     }
   }

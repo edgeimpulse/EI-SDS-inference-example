@@ -150,14 +150,17 @@ static void ei_fusion_inertial_read_data_bmi323(int n_samples)
 __NO_RETURN void sensorThread (void *argument)
 {   
     (void)argument; 
+
     uint32_t interval_time = 0U;
+    uint32_t ticks_per_msec = osKernelGetTickFreq() / 1000;
+
     for(;;) {
         interval_time = osKernelGetTickCount(); // get time
         ei_fusion_inertial_read_data_bmi323(3);
 
         samples_callback(imu_data_bmi323, 3 * sizeof(float));
       
-        interval_time += EI_CLASSIFIER_INTERVAL_MS;
+        interval_time += (EI_CLASSIFIER_INTERVAL_MS * ticks_per_msec);
         osDelayUntil(interval_time);
     }
 }
