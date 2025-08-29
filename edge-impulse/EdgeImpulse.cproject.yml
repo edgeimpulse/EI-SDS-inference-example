@@ -36,8 +36,6 @@ project:
         - +Alif-AppKit
       files:
         - file: peripheral/alif/sensor.cpp
-        - file: peripheral/alif/inertial/i2c_over_i3c.c
-        - file: peripheral/alif/inertial/bmi323_icm42670.c
     - group: peripherals-vstream
       for-context:
         - .DebugRec+B-U585I-IOT02A_USB

@@ -60,7 +60,6 @@ solution:
         - AXI_LIMIT3_MEM_TYPE: 3
         - TF_LITE_STATIC_MEMORY
         - RTE_BMI323_INT_IO_PORT: 8
-        - USE_OLD_IMU: 0
         - ALIF_TARGET
     - type: Alif-AppKit
       device: AE722F80F55D5LS
@@ -95,7 +94,6 @@ solution:
         - AXI_LIMIT3_MEM_TYPE: 3
         - TF_LITE_STATIC_MEMORY
         - RTE_BMI323_INT_IO_PORT: 8
-        - USE_OLD_IMU: 0
         - ALIF_TARGET
 
     - type: B-U585I-IOT02A_USB
@@ -165,4 +163,4 @@ solution:
   # List related projects.
   projects:
     - project: edge-impulse/EdgeImpulse.cproject.yml
-  compiler: AC6
+  compiler: GCC

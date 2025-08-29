@@ -36,6 +36,7 @@
 #include <string.h>
 #include "../../ei_main.h"
 #include <stdio.h>
+#include "model-parameters/model_metadata.h"
 
 #if USE_OLD_IMU == 1
 #include "inertial/bmi323_icm42670.h"
