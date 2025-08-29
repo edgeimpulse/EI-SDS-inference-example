@@ -18,4 +18,4 @@ Click the hammer Icon from the CMSIS tab view.
 
 ## Run
 Click the Run or the Bug icon from the CMSIS tab view.
-Remember to run the (sdsio-server)[https://github.com/ARM-software/SDS-Framework/blob/main/utilities/sdsio-server.py] script from the (SDS-Framework)[https://github.com/ARM-software/SDS-Framework] report before running the firwmare.
+Remember to run the [sdsio-server](https://github.com/ARM-software/SDS-Framework/blob/main/utilities/sdsio-server.py) script from the [SDS-Framework](https://github.com/ARM-software/SDS-Framework) report before running the firwmare.
