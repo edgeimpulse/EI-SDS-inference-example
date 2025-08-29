@@ -1,38 +1,21 @@
-# SDS Template Application
+# Edge Impulse + SDS framework example
+Examples running Edge Impulse SDK inference.
+The data that is input to the model can be read from the onboard accelerometer and stored to the host (DebugRec and ReleaseRec config) or read from the host (DebugPlay and ReleasePlay config).
 
-The SDS template application is a test framework for DSP and ML algorithms. It allows recording and playback of real-world data streams using physical hardware or on simulation models using (Arm Virtual Hardware - FVP) to an user algorithm under test. The real-world data streams are captured in SDS data files.
+## Supported Boards
+- Alif AppKit
+- Alif DevKit
+- ST B-U585I-IOT02A
 
-The SDSIO-Layer connects the SDS template application to a communication interface with the SDSIO-Server for SDS file I/O operations. The following SDSIO interfaces are pre-configured:
+## Update your model
+> [!NOTE]
+> This example only support accelerometer based model.
 
-- Ethernet Interface using the MDK-Middleware Network component.
-- USB Bulk Interface using the MDK-Middleware USB component.
-- Memory Card Interface using the MDK-Middleware File System component.
-- For AVH-FVP target VSI communication to SDSIO-Server.
+To update your model, unizp the CMSIS pack deployment, install the packs using cpackget add <your_project_name>.pack and paste the edgeimpulse.clayer.yml in the model folder.
 
-Note: With a custom SDSIO interface alternative file I/O configurations are possible.
+## Build
+Click the hammer Icon from the CMSIS tab view.
 
-The template contains two projects:
-
-- **DataTest.cproject.yml** check the SDSIO interface with SDS test data files. Use `sds_algorithm_config.h` to configure parameters.
-- **AlgorithmTest.cproject.yml** verify an user algorithm with recording and playback of SDS data files.
-
-For more information refer to [SDS Template Application](https://arm-software.github.io/SDS-Framework/main/template.html) in the documentation.
-
-## Measuring CPU load
-
-Both projects measure the CPU utilization and output this information. This information gives you an
-indication of how much CPU time is available for the user application while the SDS is running.
-
-The idle time is the time during which the CPU is not executing the application code. During this time it executes
-the idle thread, incrementing the `idle_cnt` counter. The code for incrementing the idle counter is located
-in the `osRtxIdle_Thread`:
-
-```c
-__NO_RETURN void osRtxIdleThread(void *argument) {
-  (void)argument;
-
-  for (;;) {
-    idle_cnt++;
-  }
-}
-```
+## Run
+Click the Run or the Bug icon from the CMSIS tab view.
+Remember to run the (sdsio-server)[https://github.com/ARM-software/SDS-Framework/blob/main/utilities/sdsio-server.py] script from the (SDS-Framework)[https://github.com/ARM-software/SDS-Framework] report before running the firwmare.
